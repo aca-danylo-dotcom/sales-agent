@@ -26,6 +26,13 @@ class Company(Base):
     timezone: Mapped[str] = mapped_column(String(64), default="Europe/Kiev")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
+    # Веса приоритизации (services/prioritization.py). Настраиваются на экране "Настройки" (Фаза 8).
+    weight_amount: Mapped[float] = mapped_column(Numeric(10, 4), default=30)
+    weight_idle: Mapped[float] = mapped_column(Numeric(10, 4), default=5)
+    weight_stage: Mapped[float] = mapped_column(Numeric(10, 4), default=8)
+    weight_overdue_task: Mapped[float] = mapped_column(Numeric(10, 4), default=15)
+    weight_multi_rule: Mapped[float] = mapped_column(Numeric(10, 4), default=12)
+
 
 class User(Base):
     __tablename__ = "users"
@@ -104,6 +111,7 @@ class DealTask(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     deal_id: Mapped[int] = mapped_column(ForeignKey("deals.id"), index=True)
+    external_id: Mapped[str | None] = mapped_column(String(200), nullable=True, index=True)
     source: Mapped[str] = mapped_column(String(20))  # crm_import | system
     text: Mapped[str] = mapped_column(Text)
     due_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
@@ -114,6 +122,8 @@ class DealTask(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    __table_args__ = (UniqueConstraint("deal_id", "external_id", name="uq_task_deal_external"),)
 
 
 class DetectionRule(Base):

@@ -1,0 +1,5 @@
+external_task_id,external_deal_id,text,due_at,status,assignee_email
+ET-1,E-1,Перезвонить лиду,2026-07-28,open,oleg@demo.local
+ET-2,E-2,Написать клиенту,2026-07-28,open,oleg@demo.local
+ET-7,E-7,Плановый созвон,2026-07-30,open,oleg@demo.local
+ET-8,E-8,Разобраться со сделкой,2026-07-28,open,irina@demo.local

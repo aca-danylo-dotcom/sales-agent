@@ -1,0 +1,6 @@
+external_deal_id,title,contact_name,contact_phone,contact_email,company_name,owner_email,stage_name,amount,currency,created_at,last_activity_at,next_contact_date,last_note
+D-1001,Внедрение CRM для сети кофеен,Иван Петров,+380501112233,ivan.petrov@brew.ua,Кофе & Ко,oleg@demo.local,Новый лид,25000,USD,2026-07-01,2026-07-01,2026-07-03,"Заявка с сайта, ждём звонка"
+D-1002,Автоматизация склада,Анна Коваль,+380671234567,anna.koval@sklad.ua,СкладПро,oleg@demo.local,В работе,54000,USD,2026-06-20,2026-07-10,2026-07-15,"Обсудили ТЗ, готовим предложение"
+D-1003,Внедрение аналитики продаж,Дмитрий Сидоренко,+380631112200,d.sidorenko@retailx.ua,RetailX,irina@demo.local,Предложение отправлено,18000,USD,2026-06-15,2026-07-05,2026-07-08,"КП отправлено, ждём фидбек"
+D-1004,Миграция на новую CRM,Ольга Мельник,+380501231212,olga.melnyk@logis.ua,LogisGroup,irina@demo.local,Переговоры,72000,USD,2026-05-30,2026-07-12,2026-07-20,Обсуждаем условия контракта
+D-1005,Внедрение чат-бота поддержки,Сергей Бондаренко,+380671110099,s.bondarenko@shop.ua,ShopHub,oleg@demo.local,Выиграна,15000,USD,2026-05-01,2026-06-01,,Договор подписан

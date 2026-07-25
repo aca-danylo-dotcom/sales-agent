@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Подключение — Sales Agent{% endblock %}
+{% block content %}
+<h1>Подключение</h1>
+<p class="company-name">Компания: <strong>{{ company.name }}</strong></p>
+
+<section class="card">
+    <h2>Загрузка сделок (deals.csv)</h2>
+    <p class="hint">Колонки: external_deal_id, title, contact_name, contact_phone, contact_email, company_name, owner_email, stage_name, amount, currency, created_at, last_activity_at, next_contact_date, last_note</p>
+    <form action="/connect/upload-deals" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv" required>
+        <button type="submit">Загрузить сделки</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Загрузка задач (tasks.csv, опционально)</h2>
+    <p class="hint">Колонки: external_task_id, external_deal_id, text, due_at, status, assignee_email</p>
+    <form action="/connect/upload-tasks" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv" required>
+        <button type="submit">Загрузить задачи</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Этапы воронки</h2>
+    <p class="hint">stage_name в CSV должен точно совпадать с одним из названий ниже.</p>
+    <ul class="stage-list">
+        {% for stage in stages %}
+        <li>{{ stage.order_index }}. {{ stage.name }}{% if stage.is_closed_won %} (выиграна){% endif %}{% if stage.is_closed_lost %} (проиграна){% endif %}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section class="card">
+    <h2>Пользователи</h2>
+    <table>
+        <thead><tr><th>Имя</th><th>Email</th><th>Роль</th></tr></thead>
+        <tbody>
+            {% for user in users %}
+            <tr><td>{{ user.full_name }}</td><td>{{ user.email }}</td><td>{{ user.role }}</td></tr>
+            {% else %}
+            <tr><td colspan="3">Пока нет пользователей — owner_email/assignee_email в CSV не будут распознаны.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form action="/connect/users" method="post" class="inline-form">
+        <input type="text" name="full_name" placeholder="Имя" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <select name="role">
+            <option value="manager">manager</option>
+            <option value="head">head</option>
+        </select>
+        <button type="submit">Добавить пользователя</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>История загрузок</h2>
+    <table>
+        <thead><tr><th>Файл</th><th>Строк</th><th>Статус</th><th>Когда</th><th>Ошибки</th></tr></thead>
+        <tbody>
+            {% for imp in imports %}
+            <tr>
+                <td>{{ imp.filename }}</td>
+                <td>{{ imp.row_count }}</td>
+                <td class="status-{{ imp.status }}">{{ imp.status }}</td>
+                <td>{{ imp.imported_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                <td>{{ imp.error_log or "" }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5">Загрузок ещё не было.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

@@ -1,0 +1,5 @@
+external_task_id,external_deal_id,text,due_at,status,assignee_email
+T-1,D-1001,Перезвонить и уточнить бюджет,2026-07-26,open,oleg@demo.local
+T-2,D-1002,Отправить черновик предложения,2026-07-27,open,oleg@demo.local
+T-3,D-1003,Напомнить про КП,2026-07-20,overdue,irina@demo.local
+T-4,D-1004,Согласовать финальные условия,2026-07-30,open,irina@demo.local
