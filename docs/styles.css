@@ -537,3 +537,97 @@ body {
   .stats { grid-template-columns: repeat(2, 1fr); }
   .sidebar { display: none; }
 }
+
+/* Interactivity additions */
+.nav-item { cursor: pointer; background: none; border: none; width: 100%; text-align: left; font-family: inherit; }
+
+.placeholder-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.placeholder-card {
+  text-align: center;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 48px 56px;
+}
+
+.placeholder-card h2 { margin: 0 0 8px; font-size: 20px; }
+.placeholder-card p { color: var(--text-muted); margin: 0 0 20px; }
+
+.detail-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.detail-empty .empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+.page-empty-state {
+  padding: 36px 12px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.page-empty-state:hover { background: none; }
+.page-empty-state .empty-icon { font-size: 26px; margin-bottom: 8px; }
+
+.page-btn:disabled { opacity: .4; cursor: default; }
+
+.filter-dropdown {
+  position: absolute;
+  margin-top: 6px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 10px 14px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.panel-controls { position: relative; }
+
+.filter-dropdown label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+.draft-text[contenteditable="true"] {
+  outline: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.spinning { animation: spin .6s linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--text);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .2s, transform .2s;
+  z-index: 20;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.action-item.dismissing {
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity .2s, transform .2s;
+}

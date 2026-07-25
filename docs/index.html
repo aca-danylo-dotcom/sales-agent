@@ -15,32 +15,32 @@
       <span class="brand-name">Follow-up Agent</span>
     </div>
 
-    <nav class="nav">
-      <a class="nav-item active" href="#">
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-target="today">
         <span class="nav-icon">🏠</span> Сьогодні
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Угоди">
         <span class="nav-icon">📇</span> Угоди
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Ліди">
         <span class="nav-icon">👥</span> Ліди
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Завдання">
         <span class="nav-icon">✅</span> Завдання
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Клієнти">
         <span class="nav-icon">👤</span> Клієнти
-      </a>
+      </button>
       <div class="nav-gap"></div>
-      <a class="nav-item" href="#">
+      <button class="nav-item" data-target="placeholder" data-label="Звіти">
         <span class="nav-icon">📊</span> Звіти
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Шаблони повідомлень">
         <span class="nav-icon">✉️</span> Шаблони повідомлень
-      </a>
-      <a class="nav-item" href="#">
+      </button>
+      <button class="nav-item" data-target="placeholder" data-label="Налаштування">
         <span class="nav-icon">⚙️</span> Налаштування
-      </a>
+      </button>
     </nav>
 
     <div class="user-card">
@@ -55,6 +55,8 @@
 
   <main class="content">
 
+    <div id="view-today">
+
     <header class="page-header">
       <div>
         <h1>Сьогодні</h1>
@@ -62,7 +64,7 @@
       </div>
       <div class="header-actions">
         <button class="btn btn-ghost">📅 25 липня 2024 <span class="caret">⌄</span></button>
-        <button class="btn btn-primary">↻ Оновити</button>
+        <button class="btn btn-primary" id="refresh-btn">↻ Оновити</button>
       </div>
     </header>
 
@@ -124,13 +126,18 @@
         <div class="panel-header">
           <h2>Список дій</h2>
           <div class="panel-controls">
-            <button class="btn btn-ghost btn-sm">За пріоритетом <span class="caret">⌄</span></button>
-            <button class="btn btn-ghost btn-sm">⇅ Фільтри</button>
+            <button class="btn btn-ghost btn-sm" id="sort-btn">За пріоритетом <span class="caret">⌄</span></button>
+            <button class="btn btn-ghost btn-sm" id="filter-btn">⇅ Фільтри</button>
+            <div class="filter-dropdown" id="filter-dropdown" hidden>
+              <label><input type="checkbox" class="filter-check" value="high" checked> Високий</label>
+              <label><input type="checkbox" class="filter-check" value="mid" checked> Середній</label>
+              <label><input type="checkbox" class="filter-check" value="low" checked> Низький</label>
+            </div>
           </div>
         </div>
 
-        <ul class="action-list">
-          <li class="action-item selected">
+        <ul class="action-list" id="action-list">
+          <li class="action-item selected" data-index="0" data-priority="high" data-amount="450000">
             <span class="priority priority-high">Високий</span>
             <div class="action-main">
               <div class="action-title">ТОВ «БудПроект»</div>
@@ -144,7 +151,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="1" data-priority="mid" data-amount="320000">
             <span class="priority priority-mid">Середній</span>
             <div class="action-main">
               <div class="action-title">ТОВ «ПромТех»</div>
@@ -158,7 +165,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="2" data-priority="mid" data-amount="280000">
             <span class="priority priority-mid">Середній</span>
             <div class="action-main">
               <div class="action-title">ТОВ «МегаПласт»</div>
@@ -172,7 +179,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="3" data-priority="low" data-amount="150000">
             <span class="priority priority-low">Низький</span>
             <div class="action-main">
               <div class="action-title">ТОВ «БудКомплект»</div>
@@ -186,7 +193,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="4" data-priority="low" data-amount="210000">
             <span class="priority priority-low">Низький</span>
             <div class="action-main">
               <div class="action-title">ТОВ «Інтер'єр+»</div>
@@ -200,7 +207,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="5" data-priority="low" data-amount="95000">
             <span class="priority priority-low">Низький</span>
             <div class="action-main">
               <div class="action-title">ТОВ «Вектор»</div>
@@ -214,7 +221,7 @@
             <span class="chevron">›</span>
           </li>
 
-          <li class="action-item">
+          <li class="action-item" data-index="6" data-priority="low" data-amount="75000">
             <span class="priority priority-low">Низький</span>
             <div class="action-main">
               <div class="action-title">ФОП Смирнов О.О.</div>
@@ -227,87 +234,108 @@
             </div>
             <span class="chevron">›</span>
           </li>
+
+          <li class="page-empty-state" id="page-empty" hidden>
+            <div class="empty-icon">📂</div>
+            <p>Це демо-версія макета. Решта угод з'явиться тут після підключення реальної CRM.</p>
+          </li>
         </ul>
 
         <div class="pagination">
-          <span class="pagination-info">Показано 1–7 з 18</span>
+          <span class="pagination-info" id="pagination-info">Показано 1–7 з 18</span>
           <div class="pagination-controls">
-            <button class="page-btn" aria-label="Попередня">‹</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <button class="page-btn" aria-label="Наступна">›</button>
+            <button class="page-btn" id="page-prev" aria-label="Попередня">‹</button>
+            <button class="page-btn active" data-page="1">1</button>
+            <button class="page-btn" data-page="2">2</button>
+            <button class="page-btn" data-page="3">3</button>
+            <button class="page-btn" id="page-next" aria-label="Наступна">›</button>
           </div>
         </div>
       </div>
 
-      <div class="panel detail-panel">
+      <div class="panel detail-panel" id="detail-panel">
         <div class="detail-header">
-          <span class="priority priority-high">Високий пріоритет</span>
+          <span class="priority priority-high" id="detail-priority">Високий пріоритет</span>
           <div class="detail-header-actions">
-            <button class="icon-btn">⋯</button>
-            <button class="icon-btn">✕</button>
+            <button class="icon-btn" id="detail-more">⋯</button>
+            <button class="icon-btn" id="detail-close">✕</button>
           </div>
         </div>
 
-        <h3 class="detail-title">ТОВ «БудПроект»</h3>
+        <h3 class="detail-title" id="detail-title">ТОВ «БудПроект»</h3>
 
         <div class="detail-grid">
           <div class="detail-field">
             <div class="field-label">Угода на етапі</div>
-            <div class="field-value">КП надіслано</div>
+            <div class="field-value" id="detail-stage">КП надіслано</div>
           </div>
           <div class="detail-field">
             <div class="field-label">Сума угоди</div>
-            <div class="field-value strong">450 000 ₴</div>
+            <div class="field-value strong" id="detail-amount">450 000 ₴</div>
           </div>
           <div class="detail-field">
             <div class="field-label">Відповідальний</div>
-            <div class="field-value with-avatar">👤 Олексій Смирнов</div>
+            <div class="field-value with-avatar">👤 <span id="detail-owner">Олексій Смирнов</span></div>
           </div>
           <div class="detail-field">
             <div class="field-label">Останній контакт</div>
-            <div class="field-value warn">2 дні тому</div>
+            <div class="field-value warn" id="detail-lastcontact">2 дні тому</div>
           </div>
         </div>
 
         <div class="info-box warn-box">
           <div class="info-box-title">⚠️ Чому це важливо</div>
-          <p>Клієнт запросив комерційну пропозицію 2 дні тому. Зазвичай клієнти на цьому етапі приймають рішення протягом 1–2 днів. Є ризик втрати угоди.</p>
+          <p id="detail-why">Клієнт запросив комерційну пропозицію 2 дні тому. Зазвичай клієнти на цьому етапі приймають рішення протягом 1–2 днів. Є ризик втрати угоди.</p>
         </div>
 
         <div class="info-box success-box">
           <div class="info-box-title">✅ Рекомендована дія</div>
-          <p>Написати клієнту та уточнити, чи є питання щодо пропозиції.</p>
+          <p id="detail-action">Написати клієнту та уточнити, чи є питання щодо пропозиції.</p>
         </div>
 
         <div class="draft-box">
           <div class="draft-title">Чернетка повідомлення</div>
-          <div class="draft-text">
-            Олексію, доброго дня!<br><br>
-            Минулого тижня ми надіслали вам комерційну пропозицію за вашим запитом.<br><br>
-            Підкажіть, чи вдалося її переглянути? Готовий відповісти на запитання або надати додаткову інформацію.<br><br>
-            Буду радий допомогти!
-          </div>
+          <div class="draft-text" id="draft-text">Олексію, доброго дня!<br><br>Минулого тижня ми надіслали вам комерційну пропозицію за вашим запитом.<br><br>Підкажіть, чи вдалося її переглянути? Готовий відповісти на запитання або надати додаткову інформацію.<br><br>Буду радий допомогти!</div>
           <div class="draft-footer">
             <div class="draft-actions">
-              <button class="btn btn-ghost btn-sm">⧉ Копіювати</button>
-              <button class="btn btn-ghost btn-sm">✎ Редагувати</button>
+              <button class="btn btn-ghost btn-sm" id="copy-btn">⧉ Копіювати</button>
+              <button class="btn btn-ghost btn-sm" id="edit-btn">✎ Редагувати</button>
             </div>
-            <span class="char-count">221 символ</span>
+            <span class="char-count" id="char-count">221 символ</span>
           </div>
         </div>
 
         <div class="detail-footer">
-          <button class="btn btn-primary btn-block">✓ Створити завдання в CRM</button>
-          <button class="btn btn-outline">🕐 Відкласти</button>
-          <button class="btn btn-outline">✕ Неактуально</button>
+          <button class="btn btn-primary btn-block" id="confirm-btn">✓ Створити завдання в CRM</button>
+          <div>
+            <button class="btn btn-outline" id="snooze-btn">🕐 Відкласти</button>
+            <button class="btn btn-outline" id="dismiss-btn">✕ Неактуально</button>
+          </div>
         </div>
+      </div>
+
+      <div class="panel detail-panel detail-empty" id="detail-empty" hidden>
+        <div class="empty-icon">👈</div>
+        <p>Оберіть угоду зі списку зліва, щоб побачити деталі.</p>
       </div>
 
     </section>
 
+    </div>
+
+    <div class="placeholder-view" id="view-placeholder" hidden>
+      <div class="placeholder-card">
+        <h2 id="placeholder-title">Розділ у розробці</h2>
+        <p>Цей екран мокапу ще не реалізовано — зараз готовий лише розділ «Сьогодні».</p>
+        <button class="btn btn-primary" id="back-to-today">← Повернутися на «Сьогодні»</button>
+      </div>
+    </div>
+
   </main>
 </div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
 </body>
 </html>
