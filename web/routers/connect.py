@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 
 from db.models import CsvImport, PipelineStage, User
 from services.csv_import import import_deals_csv, import_tasks_csv
+from services.detection import recompute_company
+from services.prioritization import prioritize_company
 from web.deps import get_current_company, get_db
 
 router = APIRouter(prefix="/connect", tags=["connect"])
@@ -43,6 +45,7 @@ def connect_index(request: Request, session: Session = Depends(get_db)):
         request,
         "connect/index.html",
         {
+            "active_nav": "connect",
             "company": company,
             "stages": stages,
             "users": users,
@@ -60,6 +63,8 @@ def upload_deals(
     company = get_current_company(session)
     content = _read_upload(file)
     import_deals_csv(session, company.id, content, file.filename or "deals.csv")
+    recompute_company(session, company.id)
+    prioritize_company(session, company.id)
     return RedirectResponse(url="/connect", status_code=303)
 
 
@@ -72,6 +77,8 @@ def upload_tasks(
     company = get_current_company(session)
     content = _read_upload(file)
     import_tasks_csv(session, company.id, content, file.filename or "tasks.csv")
+    recompute_company(session, company.id)
+    prioritize_company(session, company.id)
     return RedirectResponse(url="/connect", status_code=303)
 
 

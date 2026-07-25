@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Сьогодні — Sales Agent{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Що потребує уваги сьогодні</h1>
+        <p class="subtitle">Угоди, за якими правила детекції знайшли ризик, за спаданням пріоритету</p>
+    </div>
+    <div class="header-actions">
+        <span class="header-date">{{ today_label }}</span>
+        <a class="btn btn-ghost btn-sm" href="/">↻ Оновити</a>
+    </div>
+</div>
+
+<div class="stats">
+    <div class="stat-card stat-red">
+        <div class="stat-top"><span class="stat-icon">▲</span> Потребує уваги</div>
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-sub">рекомендацій по {{ deals_count }} угодах</div>
+    </div>
+    <div class="stat-card stat-orange">
+        <div class="stat-top"><span class="stat-icon">⏱</span> З простроченими задачами</div>
+        <div class="stat-value">{{ overdue_count }}</div>
+        <div class="stat-sub">рекомендацій</div>
+    </div>
+    <div class="stat-card stat-yellow">
+        <div class="stat-top"><span class="stat-icon">✦</span> Ліди без відповіді</div>
+        <div class="stat-value">{{ no_response_count }}</div>
+        <div class="stat-sub">нових лідів</div>
+    </div>
+    <div class="stat-card stat-purple">
+        <div class="stat-top"><span class="stat-icon">▦</span> Сума під ризиком</div>
+        <div class="stat-value">{{ amount_at_risk_label }}</div>
+        <div class="stat-sub">оцінка за відкритими угодами</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-top"><span class="stat-icon">✓</span> Повернено в роботу</div>
+        <div class="stat-value">{{ reactivated_today }}</div>
+        <div class="stat-sub">сьогодні</div>
+    </div>
+</div>
+
+<div class="workspace">
+    <section class="panel actions-panel">
+        <div class="panel-header">
+            <h2>Робочий список</h2>
+            <div class="panel-controls">
+                <button type="button" class="btn btn-ghost btn-sm" id="sort-btn">
+                    ⇅ <span class="sort-label">За пріоритетом</span>
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" id="filter-btn">▽ Фільтр</button>
+                <div class="filter-dropdown" id="filter-dropdown" hidden>
+                    <label><input type="checkbox" value="high" checked> Високий пріоритет</label>
+                    <label><input type="checkbox" value="mid" checked> Середній пріоритет</label>
+                    <label><input type="checkbox" value="low" checked> Низький пріоритет</label>
+                </div>
+            </div>
+        </div>
+        {% if items %}
+        <ul class="action-list" id="action-list">
+            {% for item in items %}
+            <li class="action-item" data-rank="{{ item.rank }}" data-priority="{{ item.tier }}" data-amount="{{ item.amount_value }}">
+                <span class="priority priority-{{ item.tier }}">
+                    {% if item.tier == 'high' %}Високий{% elif item.tier == 'mid' %}Середній{% else %}Низький{% endif %}
+                </span>
+                <div class="action-main">
+                    <div class="action-title">{{ item.title }}</div>
+                    <div class="action-desc">{{ item.description }}</div>
+                </div>
+                <div class="action-meta">
+                    <div class="action-days {% if item.idle_high %}days-high{% endif %}">{{ item.idle_label }}</div>
+                    <div class="action-amount">{{ item.amount_label }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="page-empty-state">
+            <div class="empty-icon">✓</div>
+            <p>Зараз немає угод, що потребують уваги.<br>Завантажте дані на екрані «Підключення».</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="panel detail-panel detail-empty">
+        <div class="empty-icon">▤</div>
+        <p>Картка рекомендації з поясненням і чернеткою повідомлення з'явиться тут пізніше.</p>
+    </section>
+</div>
+{% endblock %}

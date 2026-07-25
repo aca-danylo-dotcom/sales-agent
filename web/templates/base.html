@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,14 +8,33 @@
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
-    <header class="topbar">
-        <span class="brand">Sales Agent</span>
-        <nav>
-            <a href="/connect">Подключение</a>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">◎</span>
+            <span>Sales Agent</span>
+        </div>
+        <nav class="nav">
+            <a class="nav-item {% if active_nav == 'worklist' %}active{% endif %}" href="/">
+                <span class="nav-icon">◉</span> Сьогодні
+            </a>
+            <a class="nav-item {% if active_nav == 'connect' %}active{% endif %}" href="/connect">
+                <span class="nav-icon">↥</span> Підключення
+            </a>
+            <div class="nav-gap"></div>
+            <button type="button" class="nav-item" data-placeholder="Угоди"><span class="nav-icon">▤</span> Угоди</button>
+            <button type="button" class="nav-item" data-placeholder="Ліди"><span class="nav-icon">✦</span> Ліди</button>
+            <button type="button" class="nav-item" data-placeholder="Завдання"><span class="nav-icon">✓</span> Завдання</button>
+            <button type="button" class="nav-item" data-placeholder="Клієнти"><span class="nav-icon">☺</span> Клієнти</button>
+            <button type="button" class="nav-item" data-placeholder="Звіти"><span class="nav-icon">▦</span> Звіти</button>
+            <button type="button" class="nav-item" data-placeholder="Налаштування"><span class="nav-icon">⚙</span> Налаштування</button>
         </nav>
-    </header>
-    <main>
+    </aside>
+    <main class="content">
         {% block content %}{% endblock %}
     </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/js/app.js"></script>
 </body>
 </html>
