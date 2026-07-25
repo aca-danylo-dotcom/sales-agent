@@ -548,6 +548,8 @@ body {
   min-height: 60vh;
 }
 
+.placeholder-view[hidden] { display: none; }
+
 .placeholder-card {
   text-align: center;
   background: var(--panel-bg);
@@ -596,6 +598,8 @@ body {
 }
 
 .panel-controls { position: relative; }
+
+.filter-dropdown[hidden] { display: none; }
 
 .filter-dropdown label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 
