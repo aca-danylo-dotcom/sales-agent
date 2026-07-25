@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow-up Agent — Сегодня</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">🤖</span>
+      <span class="brand-name">Follow-up Agent</span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item active" href="#">
+        <span class="nav-icon">🏠</span> Сегодня
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📇</span> Сделки
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">👥</span> Лиды
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">✅</span> Задачи
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">👤</span> Клиенты
+      </a>
+      <div class="nav-gap"></div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📊</span> Отчёты
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">✉️</span> Шаблоны сообщений
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">⚙️</span> Настройки
+      </a>
+    </nav>
+
+    <div class="user-card">
+      <div class="user-avatar">👤</div>
+      <div class="user-meta">
+        <div class="user-name">Иван Петров</div>
+        <div class="user-role">Руководитель</div>
+      </div>
+      <span class="user-caret">⌄</span>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <header class="page-header">
+      <div>
+        <h1>Сегодня</h1>
+        <p class="subtitle">Ваш список действий на сегодня</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost">📅 25 июля 2024 <span class="caret">⌄</span></button>
+        <button class="btn btn-primary">↻ Обновить</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <article class="stat-card stat-red">
+        <div class="stat-top">
+          <span class="stat-icon">🚩</span>
+          <span class="stat-label">Требует внимания</span>
+        </div>
+        <div class="stat-value">18</div>
+        <div class="stat-sub">на сумму 2 450 000 ₽</div>
+        <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,28 25,18 50,30 75,12 100,26 125,8 150,22 175,6 200,20"/></svg>
+      </article>
+
+      <article class="stat-card stat-orange">
+        <div class="stat-top">
+          <span class="stat-icon">🔀</span>
+          <span class="stat-label">Просроченные задачи</span>
+        </div>
+        <div class="stat-value">7</div>
+        <div class="stat-sub">на сумму 860 000 ₽</div>
+        <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,20 25,30 50,14 75,26 100,10 125,24 150,12 175,28 200,16"/></svg>
+      </article>
+
+      <article class="stat-card stat-yellow">
+        <div class="stat-top">
+          <span class="stat-icon">⏱️</span>
+          <span class="stat-label">Нет ответа</span>
+        </div>
+        <div class="stat-value">11</div>
+        <div class="stat-sub">на сумму 1 240 000 ₽</div>
+        <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,24 25,14 50,26 75,18 100,30 125,16 150,26 175,10 200,22"/></svg>
+      </article>
+
+      <article class="stat-card stat-green">
+        <div class="stat-top">
+          <span class="stat-icon">🔁</span>
+          <span class="stat-label">Возвращено в работу</span>
+        </div>
+        <div class="stat-value">9</div>
+        <div class="stat-sub">на сумму 1 100 000 ₽</div>
+        <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,30 25,20 50,26 75,10 100,22 125,6 150,18 175,8 200,14"/></svg>
+      </article>
+
+      <article class="stat-card stat-purple">
+        <div class="stat-top">
+          <span class="stat-icon">🏆</span>
+          <span class="stat-label">Выполнено сегодня</span>
+        </div>
+        <div class="stat-value">6</div>
+        <div class="stat-sub">рекомендаций</div>
+        <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,26 25,16 50,24 75,14 100,20 125,8 150,16 175,10 200,18"/></svg>
+      </article>
+    </section>
+
+    <section class="workspace">
+
+      <div class="panel actions-panel">
+        <div class="panel-header">
+          <h2>Список действий</h2>
+          <div class="panel-controls">
+            <button class="btn btn-ghost btn-sm">По приоритету <span class="caret">⌄</span></button>
+            <button class="btn btn-ghost btn-sm">⇅ Фильтры</button>
+          </div>
+        </div>
+
+        <ul class="action-list">
+          <li class="action-item selected">
+            <span class="priority priority-high">Высокий</span>
+            <div class="action-main">
+              <div class="action-title">ООО «СтройПроект»</div>
+              <div class="action-desc">КП отправлено 2 дня назад, нет ответа</div>
+            </div>
+            <div class="action-avatar">👨</div>
+            <div class="action-meta">
+              <div class="action-days days-high">2 дня</div>
+              <div class="action-amount">450 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-mid">Средний</span>
+            <div class="action-main">
+              <div class="action-title">ООО «ПромТех»</div>
+              <div class="action-desc">Переговоры 5 дней без активности</div>
+            </div>
+            <div class="action-avatar">👩</div>
+            <div class="action-meta">
+              <div class="action-days">5 дней</div>
+              <div class="action-amount">320 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-mid">Средний</span>
+            <div class="action-main">
+              <div class="action-title">ООО «МегаПласт»</div>
+              <div class="action-desc">КП отправлено 4 дня назад, нет ответа</div>
+            </div>
+            <div class="action-avatar">👨</div>
+            <div class="action-meta">
+              <div class="action-days">4 дня</div>
+              <div class="action-amount">280 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-low">Низкий</span>
+            <div class="action-main">
+              <div class="action-title">ООО «СтройКомплект»</div>
+              <div class="action-desc">Новый лид, нет ответа 6 часов</div>
+            </div>
+            <div class="action-avatar">👨</div>
+            <div class="action-meta">
+              <div class="action-days">6 часов</div>
+              <div class="action-amount">150 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-low">Низкий</span>
+            <div class="action-main">
+              <div class="action-title">ООО «Интерьер+»</div>
+              <div class="action-desc">Встреча прошла 7 дней назад</div>
+            </div>
+            <div class="action-avatar">👩</div>
+            <div class="action-meta">
+              <div class="action-days">7 дней</div>
+              <div class="action-amount">210 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-low">Низкий</span>
+            <div class="action-main">
+              <div class="action-title">ООО «Вектор»</div>
+              <div class="action-desc">Нет активности 12 дней</div>
+            </div>
+            <div class="action-avatar">👨</div>
+            <div class="action-meta">
+              <div class="action-days">12 дней</div>
+              <div class="action-amount">95 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+
+          <li class="action-item">
+            <span class="priority priority-low">Низкий</span>
+            <div class="action-main">
+              <div class="action-title">ИП Смирнов А.А.</div>
+              <div class="action-desc">КП отправлено 8 дней назад</div>
+            </div>
+            <div class="action-avatar">👨</div>
+            <div class="action-meta">
+              <div class="action-days">8 дней</div>
+              <div class="action-amount">75 000 ₽</div>
+            </div>
+            <span class="chevron">›</span>
+          </li>
+        </ul>
+
+        <div class="pagination">
+          <span class="pagination-info">Показано 1–7 из 18</span>
+          <div class="pagination-controls">
+            <button class="page-btn" aria-label="Предыдущая">‹</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn" aria-label="Следующая">›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel detail-panel">
+        <div class="detail-header">
+          <span class="priority priority-high">Высокий приоритет</span>
+          <div class="detail-header-actions">
+            <button class="icon-btn">⋯</button>
+            <button class="icon-btn">✕</button>
+          </div>
+        </div>
+
+        <h3 class="detail-title">ООО «СтройПроект»</h3>
+
+        <div class="detail-grid">
+          <div class="detail-field">
+            <div class="field-label">Сделка на этапе</div>
+            <div class="field-value">КП отправлено</div>
+          </div>
+          <div class="detail-field">
+            <div class="field-label">Сумма сделки</div>
+            <div class="field-value strong">450 000 ₽</div>
+          </div>
+          <div class="detail-field">
+            <div class="field-label">Ответственный</div>
+            <div class="field-value with-avatar">👤 Алексей Смирнов</div>
+          </div>
+          <div class="detail-field">
+            <div class="field-label">Последний контакт</div>
+            <div class="field-value warn">2 дня назад</div>
+          </div>
+        </div>
+
+        <div class="info-box warn-box">
+          <div class="info-box-title">⚠️ Почему это важно</div>
+          <p>Клиент запросил коммерческое предложение 2 дня назад. Обычно клиенты на этом этапе принимают решение в течение 1–2 дней. Есть риск потери сделки.</p>
+        </div>
+
+        <div class="info-box success-box">
+          <div class="info-box-title">✅ Рекомендуемое действие</div>
+          <p>Написать клиенту и уточнить, есть ли вопросы по предложению.</p>
+        </div>
+
+        <div class="draft-box">
+          <div class="draft-title">Черновик сообщения</div>
+          <div class="draft-text">
+            Алексей, добрый день!<br><br>
+            На прошлой неделе мы отправили вам коммерческое предложение по вашему запросу.<br><br>
+            Подскажите, удалось ли его посмотреть? Готов ответить на вопросы или предоставить дополнительную информацию.<br><br>
+            Буду рад помочь!
+          </div>
+          <div class="draft-footer">
+            <div class="draft-actions">
+              <button class="btn btn-ghost btn-sm">⧉ Скопировать</button>
+              <button class="btn btn-ghost btn-sm">✎ Редактировать</button>
+            </div>
+            <span class="char-count">187 символов</span>
+          </div>
+        </div>
+
+        <div class="detail-footer">
+          <button class="btn btn-primary btn-block">✓ Создать задачу в CRM</button>
+          <button class="btn btn-outline">🕐 Отложить</button>
+          <button class="btn btn-outline">✕ Не актуально</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
