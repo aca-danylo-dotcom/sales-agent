@@ -635,3 +635,189 @@ body {
   transform: translateX(12px);
   transition: opacity .2s, transform .2s;
 }
+
+/* ---- Розділ «Угоди» ---- */
+.stats-4 { grid-template-columns: repeat(4, 1fr); }
+
+.deals-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.deals-workspace.with-detail { grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr); }
+
+.deals-panel { min-width: 0; }
+
+.deals-panel-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.count-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--purple-bg);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.deals-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.select-input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+}
+
+.search-input { min-width: 200px; }
+.search-input:focus,
+.select-input:focus { outline: 2px solid var(--purple-bg); border-color: var(--accent); }
+.select-input { cursor: pointer; }
+
+.table-wrap { overflow-x: auto; }
+
+.deals-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.deals-table th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.deals-table th.num { text-align: right; }
+
+.deals-table th.sortable { cursor: pointer; user-select: none; }
+.deals-table th.sortable:hover { color: var(--text); }
+
+.sort-arrow { font-size: 10px; opacity: .55; }
+
+.deals-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.deals-table tbody tr { cursor: pointer; }
+.deals-table tbody tr:hover { background: #fafafd; }
+.deals-table tbody tr.selected { background: var(--purple-bg); }
+.deals-table tbody tr:last-child td { border-bottom: none; }
+
+.cell-company { font-weight: 600; }
+.cell-amount { text-align: right; font-weight: 700; white-space: nowrap; }
+.cell-idle { color: var(--text-muted); white-space: nowrap; }
+.cell-idle.stale { color: var(--red); font-weight: 600; }
+
+.cell-owner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.owner-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #eef0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.stage-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef0f5;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stage-new { background: #eef0f5; color: var(--text-muted); }
+.stage-qual { background: var(--yellow-bg); color: #8a6d09; }
+.stage-offer { background: var(--orange-bg); color: var(--orange); }
+.stage-talks { background: var(--purple-bg); color: var(--accent); }
+.stage-meeting { background: #e6f0fd; color: #2563eb; }
+.stage-contract { background: var(--green-bg); color: #16893f; }
+
+.table-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.table-empty .empty-icon { font-size: 28px; margin-bottom: 8px; }
+.table-empty p { margin: 0; }
+
+.info-box.neutral-box { background: #fafafd; border: 1px solid var(--border); }
+.info-box.neutral-box .info-box-title { color: var(--text); }
+
+.timeline-box {
+  background: #fafafd;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--border);
+}
+
+.timeline li {
+  position: relative;
+  padding: 0 0 14px 4px;
+  font-size: 13px;
+}
+
+.timeline li:last-child { padding-bottom: 0; }
+
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.timeline li.current::before { background: var(--accent); }
+
+.timeline-stage { font-weight: 600; }
+.timeline-date { color: var(--text-muted); font-size: 12px; }
+
+@media (max-width: 1200px) {
+  .stats-4 { grid-template-columns: repeat(2, 1fr); }
+  .deals-workspace.with-detail { grid-template-columns: 1fr; }
+}

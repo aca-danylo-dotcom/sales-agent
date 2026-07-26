@@ -104,21 +104,22 @@ function showToast(message) {
 }
 
 // --- Навігація по сайдбару ---
+function switchView(target) {
+  ['today', 'deals', 'placeholder'].forEach(name => {
+    document.getElementById('view-' + name).hidden = name !== target;
+  });
+}
+
 document.getElementById('nav').addEventListener('click', (e) => {
   const item = e.target.closest('.nav-item');
   if (!item) return;
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   item.classList.add('active');
 
-  const today = document.getElementById('view-today');
-  const placeholder = document.getElementById('view-placeholder');
+  const target = item.dataset.target;
+  switchView(target);
 
-  if (item.dataset.target === 'today') {
-    today.hidden = false;
-    placeholder.hidden = true;
-  } else {
-    today.hidden = true;
-    placeholder.hidden = false;
+  if (target === 'placeholder') {
     document.getElementById('placeholder-title').textContent = `Розділ «${item.dataset.label}»`;
     showToast(`Розділ «${item.dataset.label}» ще в розробці`);
   }
@@ -127,8 +128,7 @@ document.getElementById('nav').addEventListener('click', (e) => {
 document.getElementById('back-to-today').addEventListener('click', () => {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.querySelector('.nav-item[data-target="today"]').classList.add('active');
-  document.getElementById('view-today').hidden = false;
-  document.getElementById('view-placeholder').hidden = true;
+  switchView('today');
 });
 
 // --- Вибір угоди зі списку ---
@@ -337,3 +337,282 @@ document.getElementById('refresh-btn').addEventListener('click', (e) => {
   setTimeout(() => btn.classList.remove('spinning'), 600);
   showToast('Дані оновлено (демо)');
 });
+
+// =====================================================================
+// Розділ «Угоди»
+// =====================================================================
+
+const allDeals = [
+  { id: 'd1', company: 'ТОВ «БудПроект»', amount: 450000, stage: 'КП надіслано', priority: 'high', idleDays: 2, owner: 'Олексій Смирнов', ownerIcon: '👨', created: '12 липня 2024', probability: '60%',
+    noteType: 'warn', noteTitle: '⚠️ Ризик втрати', note: 'Клієнт запросив комерційну пропозицію 2 дні тому і не відповідає. На цьому етапі рішення зазвичай ухвалюють за 1–2 дні.',
+    timeline: [{ stage: 'Новий лід', date: '12 липня' }, { stage: 'Кваліфікація', date: '15 липня' }, { stage: 'КП надіслано', date: '23 липня' }] },
+
+  { id: 'd2', company: 'ТОВ «ПромТех»', amount: 320000, stage: 'Переговори', priority: 'mid', idleDays: 5, owner: 'Марина Ковальчук', ownerIcon: '👩', created: '2 липня 2024', probability: '45%',
+    noteType: 'warn', noteTitle: '⚠️ Ризик втрати', note: 'Переговори призупинились 5 днів тому без явної причини. Варто уточнити наявність заперечень.',
+    timeline: [{ stage: 'Новий лід', date: '2 липня' }, { stage: 'КП надіслано', date: '10 липня' }, { stage: 'Переговори', date: '18 липня' }] },
+
+  { id: 'd3', company: 'ТОВ «МегаПласт»', amount: 280000, stage: 'КП надіслано', priority: 'mid', idleDays: 4, owner: 'Дмитро Іванов', ownerIcon: '👨', created: '8 липня 2024', probability: '50%',
+    noteType: 'neutral', noteTitle: 'Статус угоди', note: 'Пропозицію надіслано 4 дні тому. Пауза наближається до критичної — потрібне нагадування.',
+    timeline: [{ stage: 'Новий лід', date: '8 липня' }, { stage: 'Кваліфікація', date: '14 липня' }, { stage: 'КП надіслано', date: '21 липня' }] },
+
+  { id: 'd4', company: 'ТОВ «БудКомплект»', amount: 150000, stage: 'Новий лід', priority: 'low', idleDays: 0, owner: 'Марина Ковальчук', ownerIcon: '👩', created: '25 липня 2024', probability: '20%',
+    noteType: 'success', noteTitle: '✅ Все за планом', note: 'Свіжий лід у роботі. Перша відповідь протягом дня суттєво підвищує шанс конверсії.',
+    timeline: [{ stage: 'Новий лід', date: '25 липня' }] },
+
+  { id: 'd5', company: 'ТОВ «Інтер\'єр+»', amount: 210000, stage: 'Зустріч проведена', priority: 'low', idleDays: 7, owner: 'Дмитро Іванов', ownerIcon: '👨', created: '28 червня 2024', probability: '55%',
+    noteType: 'warn', noteTitle: '⚠️ Потребує уваги', note: 'Після зустрічі минуло 7 днів без наступного контакту. Клієнт може чекати на ваш крок.',
+    timeline: [{ stage: 'Новий лід', date: '28 червня' }, { stage: 'Кваліфікація', date: '4 липня' }, { stage: 'Зустріч проведена', date: '18 липня' }] },
+
+  { id: 'd6', company: 'ТОВ «Вектор»', amount: 95000, stage: 'Переговори', priority: 'low', idleDays: 12, owner: 'Марина Ковальчук', ownerIcon: '👩', created: '10 червня 2024', probability: '30%',
+    noteType: 'warn', noteTitle: '⚠️ Угода зависла', note: '12 днів без активності — найдовша пауза у воронці. Висока ймовірність, що угода втрачена.',
+    timeline: [{ stage: 'Новий лід', date: '10 червня' }, { stage: 'КП надіслано', date: '25 червня' }, { stage: 'Переговори', date: '13 липня' }] },
+
+  { id: 'd7', company: 'ФОП Смирнов О.О.', amount: 75000, stage: 'КП надіслано', priority: 'low', idleDays: 8, owner: 'Дмитро Іванов', ownerIcon: '👨', created: '1 липня 2024', probability: '35%',
+    noteType: 'neutral', noteTitle: 'Статус угоди', note: 'Пропозицію надіслано 8 днів тому, відповіді немає. Сума невелика, але угода досі відкрита.',
+    timeline: [{ stage: 'Новий лід', date: '1 липня' }, { stage: 'КП надіслано', date: '17 липня' }] },
+
+  { id: 'd8', company: 'ТОВ «Агротрейд»', amount: 620000, stage: 'Договір', priority: 'high', idleDays: 1, owner: 'Олексій Смирнов', ownerIcon: '👨', created: '20 травня 2024', probability: '85%',
+    noteType: 'success', noteTitle: '✅ Все за планом', note: 'Найбільша угода у воронці на фінальному етапі. Договір на погодженні у юристів клієнта.',
+    timeline: [{ stage: 'Новий лід', date: '20 травня' }, { stage: 'КП надіслано', date: '3 червня' }, { stage: 'Переговори', date: '28 червня' }, { stage: 'Договір', date: '24 липня' }] },
+
+  { id: 'd9', company: 'ТОВ «Логістик Плюс»', amount: 385000, stage: 'Переговори', priority: 'high', idleDays: 9, owner: 'Олексій Смирнов', ownerIcon: '👨', created: '18 червня 2024', probability: '40%',
+    noteType: 'warn', noteTitle: '⚠️ Угода зависла', note: 'Велика сума і 9 днів тиші на етапі переговорів. Потрібен дзвінок особисто, не лист.',
+    timeline: [{ stage: 'Новий лід', date: '18 червня' }, { stage: 'Кваліфікація', date: '24 червня' }, { stage: 'Переговори', date: '16 липня' }] },
+
+  { id: 'd10', company: 'ТОВ «Стальконструкція»', amount: 540000, stage: 'Зустріч проведена', priority: 'high', idleDays: 3, owner: 'Марина Ковальчук', ownerIcon: '👩', created: '5 липня 2024', probability: '65%',
+    noteType: 'neutral', noteTitle: 'Статус угоди', note: 'Зустріч пройшла успішно, клієнт запросив розрахунок під власні обсяги.',
+    timeline: [{ stage: 'Новий лід', date: '5 липня' }, { stage: 'Кваліфікація', date: '11 липня' }, { stage: 'Зустріч проведена', date: '22 липня' }] },
+
+  { id: 'd11', company: 'ФОП Гриценко І.В.', amount: 48000, stage: 'Кваліфікація', priority: 'low', idleDays: 6, owner: 'Дмитро Іванов', ownerIcon: '👨', created: '14 липня 2024', probability: '25%',
+    noteType: 'neutral', noteTitle: 'Статус угоди', note: 'Бюджет клієнта ще не підтверджено. Потрібно уточнити терміни та обсяг замовлення.',
+    timeline: [{ stage: 'Новий лід', date: '14 липня' }, { stage: 'Кваліфікація', date: '19 липня' }] },
+
+  { id: 'd12', company: 'ТОВ «Енергосервіс»', amount: 295000, stage: 'КП надіслано', priority: 'mid', idleDays: 14, owner: 'Марина Ковальчук', ownerIcon: '👩', created: '3 червня 2024', probability: '20%',
+    noteType: 'warn', noteTitle: '⚠️ Угода зависла', note: '14 днів без реакції на пропозицію. Варто зробити останню спробу або перевести в архів.',
+    timeline: [{ stage: 'Новий лід', date: '3 червня' }, { stage: 'Кваліфікація', date: '17 червня' }, { stage: 'КП надіслано', date: '11 липня' }] }
+];
+
+const STAGE_CLASS = {
+  'Новий лід': 'stage-new',
+  'Кваліфікація': 'stage-qual',
+  'КП надіслано': 'stage-offer',
+  'Переговори': 'stage-talks',
+  'Зустріч проведена': 'stage-meeting',
+  'Договір': 'stage-contract'
+};
+
+const PRIORITY_LABEL = { high: 'Високий', mid: 'Середній', low: 'Низький' };
+const PRIORITY_RANK = { high: 3, mid: 2, low: 1 };
+const DEALS_PER_PAGE = 8;
+
+let dealsSort = { key: 'priority', dir: 'desc' };
+let dealsPage = 1;
+let selectedDealId = null;
+
+function formatMoney(value) {
+  return value.toLocaleString('uk-UA').replace(/ /g, ' ') + ' ₴';
+}
+
+function dayWord(n) {
+  const mod100 = n % 100;
+  const mod10 = n % 10;
+  if (mod100 >= 11 && mod100 <= 14) return 'днів';
+  if (mod10 === 1) return 'день';
+  if (mod10 >= 2 && mod10 <= 4) return 'дні';
+  return 'днів';
+}
+
+function idleLabel(days) {
+  return days === 0 ? 'сьогодні' : `${days} ${dayWord(days)} тому`;
+}
+
+function getFilteredDeals() {
+  const query = document.getElementById('deals-search').value.trim().toLowerCase();
+  const stage = document.getElementById('deals-stage').value;
+  const priority = document.getElementById('deals-priority').value;
+
+  const filtered = allDeals.filter(deal => {
+    if (query && !deal.company.toLowerCase().includes(query)) return false;
+    if (stage !== 'all' && deal.stage !== stage) return false;
+    if (priority !== 'all' && deal.priority !== priority) return false;
+    return true;
+  });
+
+  const dir = dealsSort.dir === 'asc' ? 1 : -1;
+  filtered.sort((a, b) => {
+    switch (dealsSort.key) {
+      case 'company': return a.company.localeCompare(b.company, 'uk') * dir;
+      case 'amount': return (a.amount - b.amount) * dir;
+      case 'idle': return (a.idleDays - b.idleDays) * dir;
+      default: return (PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]) * dir;
+    }
+  });
+
+  return filtered;
+}
+
+function renderDealsTable() {
+  const filtered = getFilteredDeals();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / DEALS_PER_PAGE));
+  dealsPage = Math.min(dealsPage, totalPages);
+
+  const start = (dealsPage - 1) * DEALS_PER_PAGE;
+  const pageItems = filtered.slice(start, start + DEALS_PER_PAGE);
+
+  const tbody = document.getElementById('deals-tbody');
+  tbody.innerHTML = pageItems.map(deal => `
+    <tr data-id="${deal.id}"${deal.id === selectedDealId ? ' class="selected"' : ''}>
+      <td class="cell-company">${deal.company}</td>
+      <td class="cell-amount">${formatMoney(deal.amount)}</td>
+      <td><span class="stage-badge ${STAGE_CLASS[deal.stage]}">${deal.stage}</span></td>
+      <td><span class="priority priority-${deal.priority}">${PRIORITY_LABEL[deal.priority]}</span></td>
+      <td class="cell-idle${deal.idleDays > 7 ? ' stale' : ''}">${idleLabel(deal.idleDays)}</td>
+      <td><div class="cell-owner"><span class="owner-avatar">${deal.ownerIcon}</span>${deal.owner}</div></td>
+    </tr>
+  `).join('');
+
+  document.getElementById('deals-empty').hidden = filtered.length > 0;
+  document.getElementById('deals-count').textContent = filtered.length;
+
+  document.getElementById('deals-pagination-info').textContent = filtered.length === 0
+    ? 'Нічого не знайдено'
+    : `Показано ${start + 1}–${start + pageItems.length} з ${filtered.length}`;
+
+  renderDealsPagination(totalPages);
+  renderSortArrows();
+}
+
+function renderDealsPagination(totalPages) {
+  const container = document.getElementById('deals-pages');
+  const buttons = ['<button class="page-btn" data-nav="prev" aria-label="Попередня">‹</button>'];
+  for (let page = 1; page <= totalPages; page++) {
+    buttons.push(`<button class="page-btn${page === dealsPage ? ' active' : ''}" data-page="${page}">${page}</button>`);
+  }
+  buttons.push('<button class="page-btn" data-nav="next" aria-label="Наступна">›</button>');
+  container.innerHTML = buttons.join('');
+}
+
+function renderSortArrows() {
+  document.querySelectorAll('.deals-table th.sortable').forEach(th => {
+    const arrow = th.querySelector('.sort-arrow');
+    arrow.textContent = th.dataset.sort === dealsSort.key ? (dealsSort.dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+
+function renderDealsKpi() {
+  const sum = allDeals.reduce((acc, deal) => acc + deal.amount, 0);
+  const stuck = allDeals.filter(deal => deal.idleDays > 7);
+  const stuckSum = stuck.reduce((acc, deal) => acc + deal.amount, 0);
+
+  document.getElementById('kpi-total').textContent = allDeals.length;
+  document.getElementById('kpi-sum').textContent = formatMoney(sum);
+  document.getElementById('kpi-stuck').textContent = stuck.length;
+  document.getElementById('kpi-stuck-sum').textContent = 'на суму ' + formatMoney(stuckSum);
+  document.getElementById('kpi-avg').textContent = formatMoney(Math.round(sum / allDeals.length));
+}
+
+function openDealDetail(id) {
+  const deal = allDeals.find(item => item.id === id);
+  if (!deal) return;
+  selectedDealId = id;
+
+  document.getElementById('dd-panel').hidden = false;
+  document.getElementById('deals-workspace').classList.add('with-detail');
+
+  const priorityEl = document.getElementById('dd-priority');
+  priorityEl.textContent = PRIORITY_LABEL[deal.priority] + ' пріоритет';
+  priorityEl.className = 'priority priority-' + deal.priority;
+
+  document.getElementById('dd-title').textContent = deal.company;
+  document.getElementById('dd-stage').textContent = deal.stage;
+  document.getElementById('dd-amount').textContent = formatMoney(deal.amount);
+  document.getElementById('dd-owner').textContent = deal.owner;
+  document.getElementById('dd-created').textContent = deal.created;
+  document.getElementById('dd-probability').textContent = deal.probability;
+
+  const idleEl = document.getElementById('dd-idle');
+  idleEl.textContent = idleLabel(deal.idleDays);
+  idleEl.className = 'field-value' + (deal.idleDays > 7 ? ' warn' : '');
+
+  const noteBox = document.getElementById('dd-note-box');
+  noteBox.className = 'info-box ' + (deal.noteType === 'warn' ? 'warn-box' : deal.noteType === 'success' ? 'success-box' : 'neutral-box');
+  document.getElementById('dd-note-title').textContent = deal.noteTitle;
+  document.getElementById('dd-note').textContent = deal.note;
+
+  document.getElementById('dd-timeline').innerHTML = deal.timeline.map((step, i) => `
+    <li${i === deal.timeline.length - 1 ? ' class="current"' : ''}>
+      <div class="timeline-stage">${step.stage}</div>
+      <div class="timeline-date">${step.date}</div>
+    </li>
+  `).join('');
+
+  document.querySelectorAll('#deals-tbody tr').forEach(tr => {
+    tr.classList.toggle('selected', tr.dataset.id === id);
+  });
+}
+
+function closeDealDetail() {
+  selectedDealId = null;
+  document.getElementById('dd-panel').hidden = true;
+  document.getElementById('deals-workspace').classList.remove('with-detail');
+  document.querySelectorAll('#deals-tbody tr').forEach(tr => tr.classList.remove('selected'));
+}
+
+document.getElementById('deals-tbody').addEventListener('click', (e) => {
+  const row = e.target.closest('tr');
+  if (!row) return;
+  openDealDetail(row.dataset.id);
+});
+
+document.getElementById('dd-close').addEventListener('click', closeDealDetail);
+document.getElementById('dd-more').addEventListener('click', () => showToast('Додаткові дії ще в розробці'));
+document.getElementById('dd-open-crm').addEventListener('click', () => showToast('Перехід у CRM (демо)'));
+document.getElementById('dd-task').addEventListener('click', () => showToast('Завдання створено в CRM (демо)'));
+document.getElementById('dd-archive').addEventListener('click', () => showToast('Угоду переміщено в архів (демо)'));
+
+document.querySelectorAll('.deals-table th.sortable').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (dealsSort.key === key) {
+      dealsSort.dir = dealsSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      dealsSort = { key, dir: key === 'company' ? 'asc' : 'desc' };
+    }
+    dealsPage = 1;
+    renderDealsTable();
+  });
+});
+
+['deals-search', 'deals-stage', 'deals-priority'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(id === 'deals-search' ? 'input' : 'change', () => {
+    dealsPage = 1;
+    renderDealsTable();
+  });
+});
+
+document.getElementById('deals-pages').addEventListener('click', (e) => {
+  const btn = e.target.closest('.page-btn');
+  if (!btn) return;
+  const totalPages = Math.max(1, Math.ceil(getFilteredDeals().length / DEALS_PER_PAGE));
+  if (btn.dataset.page) {
+    dealsPage = Number(btn.dataset.page);
+  } else {
+    dealsPage = Math.min(totalPages, Math.max(1, dealsPage + (btn.dataset.nav === 'next' ? 1 : -1)));
+  }
+  renderDealsTable();
+});
+
+document.getElementById('deals-refresh').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  btn.classList.add('spinning');
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+  showToast('Дані оновлено (демо)');
+});
+
+document.getElementById('deals-export').addEventListener('click', () => {
+  showToast('Експорт у CSV ще в розробці');
+});
+
+renderDealsKpi();
+renderDealsTable();

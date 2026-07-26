@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Follow-up Agent — Сьогодні</title>
-<link rel="stylesheet" href="styles.css?v=20260725">
+<link rel="stylesheet" href="styles.css?v=20260726">
 </head>
 <body>
 <div class="layout">
@@ -19,7 +19,7 @@
       <button class="nav-item active" data-target="today">
         <span class="nav-icon">🏠</span> Сьогодні
       </button>
-      <button class="nav-item" data-target="placeholder" data-label="Угоди">
+      <button class="nav-item" data-target="deals" data-label="Угоди">
         <span class="nav-icon">📇</span> Угоди
       </button>
       <button class="nav-item" data-target="placeholder" data-label="Ліди">
@@ -323,6 +323,173 @@
 
     </div>
 
+    <div id="view-deals" hidden>
+
+      <header class="page-header">
+        <div>
+          <h1>Угоди</h1>
+          <p class="subtitle">Усі угоди у воронці продажів</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost" id="deals-export">⭳ Експорт</button>
+          <button class="btn btn-primary" id="deals-refresh">↻ Оновити</button>
+        </div>
+      </header>
+
+      <section class="stats stats-4">
+        <article class="stat-card stat-purple">
+          <div class="stat-top">
+            <span class="stat-icon">📇</span>
+            <span class="stat-label">Усього угод</span>
+          </div>
+          <div class="stat-value" id="kpi-total">—</div>
+          <div class="stat-sub">у воронці</div>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,30 25,24 50,26 75,16 100,20 125,10 150,16 175,8 200,12"/></svg>
+        </article>
+
+        <article class="stat-card stat-green">
+          <div class="stat-top">
+            <span class="stat-icon">💰</span>
+            <span class="stat-label">Сума воронки</span>
+          </div>
+          <div class="stat-value" id="kpi-sum">—</div>
+          <div class="stat-sub">по відкритих угодах</div>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,32 25,22 50,28 75,14 100,24 125,8 150,18 175,10 200,6"/></svg>
+        </article>
+
+        <article class="stat-card stat-red">
+          <div class="stat-top">
+            <span class="stat-icon">🚩</span>
+            <span class="stat-label">Зависли понад 7 днів</span>
+          </div>
+          <div class="stat-value" id="kpi-stuck">—</div>
+          <div class="stat-sub" id="kpi-stuck-sum">—</div>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,20 25,28 50,16 75,26 100,12 125,22 150,10 175,24 200,18"/></svg>
+        </article>
+
+        <article class="stat-card stat-orange">
+          <div class="stat-top">
+            <span class="stat-icon">📈</span>
+            <span class="stat-label">Середній чек</span>
+          </div>
+          <div class="stat-value" id="kpi-avg">—</div>
+          <div class="stat-sub">на одну угоду</div>
+          <svg class="sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"><polyline points="0,24 25,18 50,26 75,20 100,14 125,22 150,12 175,18 200,14"/></svg>
+        </article>
+      </section>
+
+      <section class="deals-workspace" id="deals-workspace">
+
+        <div class="panel deals-panel">
+          <div class="panel-header deals-panel-header">
+            <h2>Усі угоди <span class="count-badge" id="deals-count">0</span></h2>
+            <div class="deals-toolbar">
+              <input class="search-input" id="deals-search" type="search" placeholder="Пошук за компанією…" autocomplete="off">
+              <select class="select-input" id="deals-stage">
+                <option value="all">Усі етапи</option>
+                <option value="Новий лід">Новий лід</option>
+                <option value="Кваліфікація">Кваліфікація</option>
+                <option value="КП надіслано">КП надіслано</option>
+                <option value="Переговори">Переговори</option>
+                <option value="Зустріч проведена">Зустріч проведена</option>
+                <option value="Договір">Договір</option>
+              </select>
+              <select class="select-input" id="deals-priority">
+                <option value="all">Усі пріоритети</option>
+                <option value="high">Високий</option>
+                <option value="mid">Середній</option>
+                <option value="low">Низький</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="deals-table">
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort="company">Компанія <span class="sort-arrow"></span></th>
+                  <th class="sortable num" data-sort="amount">Сума <span class="sort-arrow"></span></th>
+                  <th>Етап</th>
+                  <th class="sortable" data-sort="priority">Пріоритет <span class="sort-arrow"></span></th>
+                  <th class="sortable" data-sort="idle">Остання активність <span class="sort-arrow"></span></th>
+                  <th>Відповідальний</th>
+                </tr>
+              </thead>
+              <tbody id="deals-tbody"></tbody>
+            </table>
+            <div class="table-empty" id="deals-empty" hidden>
+              <div class="empty-icon">🔍</div>
+              <p>Жодної угоди не знайдено. Спробуйте змінити фільтри або пошуковий запит.</p>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <span class="pagination-info" id="deals-pagination-info">—</span>
+            <div class="pagination-controls" id="deals-pages"></div>
+          </div>
+        </div>
+
+        <div class="panel detail-panel" id="dd-panel" hidden>
+          <div class="detail-header">
+            <span class="priority priority-high" id="dd-priority">Високий пріоритет</span>
+            <div class="detail-header-actions">
+              <button class="icon-btn" id="dd-more">⋯</button>
+              <button class="icon-btn" id="dd-close">✕</button>
+            </div>
+          </div>
+
+          <h3 class="detail-title" id="dd-title">—</h3>
+
+          <div class="detail-grid">
+            <div class="detail-field">
+              <div class="field-label">Етап</div>
+              <div class="field-value" id="dd-stage">—</div>
+            </div>
+            <div class="detail-field">
+              <div class="field-label">Сума угоди</div>
+              <div class="field-value strong" id="dd-amount">—</div>
+            </div>
+            <div class="detail-field">
+              <div class="field-label">Відповідальний</div>
+              <div class="field-value with-avatar">👤 <span id="dd-owner">—</span></div>
+            </div>
+            <div class="detail-field">
+              <div class="field-label">Остання активність</div>
+              <div class="field-value" id="dd-idle">—</div>
+            </div>
+            <div class="detail-field">
+              <div class="field-label">Створено</div>
+              <div class="field-value" id="dd-created">—</div>
+            </div>
+            <div class="detail-field">
+              <div class="field-label">Ймовірність</div>
+              <div class="field-value" id="dd-probability">—</div>
+            </div>
+          </div>
+
+          <div class="info-box" id="dd-note-box">
+            <div class="info-box-title" id="dd-note-title">Статус угоди</div>
+            <p id="dd-note">—</p>
+          </div>
+
+          <div class="timeline-box">
+            <div class="draft-title">Історія етапів</div>
+            <ol class="timeline" id="dd-timeline"></ol>
+          </div>
+
+          <div class="detail-footer">
+            <button class="btn btn-primary btn-block" id="dd-open-crm">↗ Відкрити в CRM</button>
+            <div>
+              <button class="btn btn-outline" id="dd-task">✓ Створити завдання</button>
+              <button class="btn btn-outline" id="dd-archive">🗄 В архів</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
     <div class="placeholder-view" id="view-placeholder" hidden>
       <div class="placeholder-card">
         <h2 id="placeholder-title">Розділ у розробці</h2>
@@ -336,6 +503,6 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="script.js?v=20260725"></script>
+<script src="script.js?v=20260726"></script>
 </body>
 </html>
