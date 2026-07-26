@@ -1,7 +1,8 @@
 """Экран «Рабочий список»: pending-рекомендации компании по убыванию приоритета.
 
-Read-only (Фаза 4): карточка рекомендации, LLM-черновик и confirm/reject/snooze —
-Фазы 5-6, здесь только отображение уже посчитанных детекцией и приоритизацией данных.
+Сам экран ничего не решает: детекция и приоритизация уже посчитали всё заранее,
+здесь только выборка и отображение. Единственное исключение — возврат в работу
+отложенных рекомендаций, у которых вышел срок (wake_snoozed).
 """
 from __future__ import annotations
 
@@ -15,6 +16,7 @@ from sqlalchemy.orm import Session, selectinload
 
 import config
 from db.models import Deal, Recommendation
+from services.detection import wake_snoozed
 from services.recommendation import rule_label
 from services.uk_format import format_amount as _format_amount
 from services.uk_format import format_date_uk as _format_date_uk
@@ -38,7 +40,8 @@ class WorklistItem:
     amount_label: str
 
 
-def _tier_for_rank(rank: int, total: int) -> str:
+def tier_for_rank(rank: int, total: int) -> str:
+    """Presentation-only тир: верхняя треть списка — высокий приоритет (нужен и «Моєму дню»)."""
     if total == 0:
         return "low"
     if rank <= math.ceil(total / 3):
@@ -55,6 +58,9 @@ def worklist_index(request: Request, session: Session = Depends(get_db)):
 
     now = config.now_local()
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # Отложенные рекомендации с вышедшим сроком возвращаются в работу до выборки.
+    wake_snoozed(session, company.id, now)
 
     recommendations = (
         session.query(Recommendation)
@@ -95,7 +101,7 @@ def worklist_index(request: Request, session: Session = Depends(get_db)):
             WorklistItem(
                 rec_id=rec.id,
                 rank=index,
-                tier=_tier_for_rank(index, total),
+                tier=tier_for_rank(index, total),
                 title=client or deal.title,
                 description=f"{rule_label(rec.rule_code)} · {deal.stage.name}",
                 idle_label=_idle_label(idle_days),

@@ -1,0 +1,18 @@
+<div class="detail-footer" id="detail-footer">
+    <button type="button" class="btn btn-primary btn-block"
+            hx-post="/recommendations/{{ rec.id }}/confirm"
+            hx-target="#detail-panel"
+            hx-swap="outerHTML">
+        ✓ Створити завдання в CRM
+    </button>
+    <div>
+        <button type="button" class="btn btn-outline"
+                hx-get="/recommendations/{{ rec.id }}/snooze-form"
+                hx-target="#detail-footer"
+                hx-swap="outerHTML">🕐 Відкласти</button>
+        <button type="button" class="btn btn-outline"
+                hx-get="/recommendations/{{ rec.id }}/reject-form"
+                hx-target="#detail-footer"
+                hx-swap="outerHTML">✕ Неактуально</button>
+    </div>
+</div>

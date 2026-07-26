@@ -324,6 +324,39 @@ body {
 .priority-mid { background: var(--orange-bg); color: var(--orange); }
 .priority-low { background: #eef0f5; color: var(--text-muted); }
 
+/* Мій день: переключатель менеджера и отработанные пункты дня */
+.owner-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.owner-switch-label { font-size: 12.5px; color: var(--text-muted); }
+
+.owner-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.owner-chip:hover { background: #f6f7fb; }
+
+.owner-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.action-item.item-resolved { cursor: default; opacity: 0.62; }
+.action-item.item-resolved:hover { background: transparent; }
+
 .action-main { flex: 1; min-width: 0; }
 
 .action-title {
@@ -505,6 +538,70 @@ body {
   display: flex;
   gap: 8px;
 }
+
+/* Формы действий (відкласти / неактуально) вместо обычных кнопок футера */
+.action-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reason-input {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  font-size: 13px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fafafd;
+  color: var(--text);
+}
+
+.reason-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.form-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.form-actions { display: flex; gap: 8px; }
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.preset:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Результат действия: рекомендация ушла из работы */
+.priority-done { background: var(--green-bg); color: #16893f; }
+
+.done-box { background: var(--green-bg); }
+.done-box .info-box-title { color: #16893f; }
 
 .detail-empty {
   padding: 60px 20px;

@@ -1,0 +1,17 @@
+<div class="detail-footer action-form" id="detail-footer">
+    <form hx-post="/recommendations/{{ rec.id }}/reject"
+          hx-target="#detail-panel"
+          hx-swap="outerHTML">
+        <label class="field-label" for="reason-{{ rec.id }}">Чому рекомендація неактуальна?</label>
+        <textarea id="reason-{{ rec.id }}" name="reason_text" class="reason-input" rows="3"
+                  placeholder="Своїми словами: вже телефонував, клієнт відмовився, в CRM неправильні дані…"></textarea>
+        <p class="form-hint">Текст сам розкладеться по категоріях — для статистики керівника.</p>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Зберегти</button>
+            <button type="button" class="btn btn-ghost"
+                    hx-get="/recommendations/{{ rec.id }}/footer"
+                    hx-target="#detail-footer"
+                    hx-swap="outerHTML">Скасувати</button>
+        </div>
+    </form>
+</div>

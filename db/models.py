@@ -156,6 +156,8 @@ class Recommendation(Base):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     resolved_by_user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     rejection_reason_category: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    # Отложено до этого момента: пока срок не вышел, рекомендация не в работе.
+    snoozed_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     deal: Mapped[Deal] = relationship()
 

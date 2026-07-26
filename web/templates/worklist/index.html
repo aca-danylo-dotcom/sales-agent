@@ -59,7 +59,7 @@
         {% if items %}
         <ul class="action-list" id="action-list">
             {% for item in items %}
-            <li class="action-item" data-rank="{{ item.rank }}" data-priority="{{ item.tier }}" data-amount="{{ item.amount_value }}"
+            <li class="action-item" id="rec-row-{{ item.rec_id }}" data-rank="{{ item.rank }}" data-priority="{{ item.tier }}" data-amount="{{ item.amount_value }}"
                 hx-get="/recommendations/{{ item.rec_id }}/card"
                 hx-target="#detail-panel"
                 hx-swap="outerHTML">

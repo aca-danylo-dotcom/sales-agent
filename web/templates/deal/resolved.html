@@ -1,0 +1,20 @@
+<section class="panel detail-panel" id="detail-panel">
+    <div class="detail-header">
+        <span class="priority priority-done">Опрацьовано</span>
+        <div class="detail-header-actions">
+            <button type="button" class="icon-btn" id="detail-close" title="Закрити">✕</button>
+        </div>
+    </div>
+
+    <h3 class="detail-title">{{ facts.client }}</h3>
+
+    <div class="info-box done-box">
+        <div class="info-box-title">✓ {{ title }}</div>
+        <p>{{ message }}</p>
+    </div>
+
+    <div class="detail-footer">
+        <a class="btn btn-primary btn-block" href="{{ back_url | default('/', true) }}">↻ Оновити список</a>
+    </div>
+</section>
+<div id="rec-row-{{ rec.id }}" hx-swap-oob="delete"></div>

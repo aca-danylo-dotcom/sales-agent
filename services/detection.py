@@ -137,6 +137,45 @@ class DealFinding:
     reason_text: str
 
 
+# Сколько дней после решения по рекомендации (підтвердив/відхилив) то же самое
+# правило не поднимает её заново. В Фазе 8 переедет в настройки компании.
+RESOLVED_COOLDOWN_DAYS = 7
+
+# Статусы, при которых рекомендация ещё «в работе» и дубль создавать не нужно.
+_OPEN_STATUSES = ("pending", "snoozed")
+
+
+def _in_cooldown(rec: Recommendation, now: datetime) -> bool:
+    """Решение по этой проблеме принято недавно — не беспокоим менеджера повторно."""
+    if rec.status not in ("confirmed", "rejected"):
+        return False
+    if rec.resolved_at is None:
+        return True
+    return (now - rec.resolved_at).total_seconds() < RESOLVED_COOLDOWN_DAYS * 86400
+
+
+def wake_snoozed(session: Session, company_id: int, now: datetime | None = None) -> int:
+    """Возвращает в работу отложенные рекомендации, у которых вышел срок."""
+    now = now or config.now_local()
+    rows = (
+        session.query(Recommendation)
+        .join(Deal, Recommendation.deal_id == Deal.id)
+        .filter(
+            Deal.company_id == company_id,
+            Recommendation.status == "snoozed",
+            Recommendation.snoozed_until.isnot(None),
+            Recommendation.snoozed_until <= now,
+        )
+        .all()
+    )
+    for rec in rows:
+        rec.status = "pending"
+        rec.snoozed_until = None
+    if rows:
+        session.commit()
+    return len(rows)
+
+
 def evaluate_deal(
     deal: Deal,
     open_tasks: list[DealTask],
@@ -168,7 +207,9 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
 
     Новый детект -> создаёт Recommendation(status='pending').
     Уже pending с тем же (deal_id, rule_code) -> обновляет detected_at/reason_text, не дублирует.
-    Детект пропал у pending-рекомендации -> status='expired' (сделка вернулась в работу).
+    Отложенная (snoozed) с вышедшим сроком -> возвращается в pending.
+    Подтверждённая/отклонённая в пределах RESOLVED_COOLDOWN_DAYS -> новая не создаётся.
+    Детект пропал у открытой рекомендации -> status='expired' (сделка вернулась в работу).
     """
     now = now or config.now_local()
 
@@ -194,11 +235,15 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
     ):
         open_tasks_by_deal[task.deal_id].append(task)
 
-    pending_by_key: dict[tuple[int, str], Recommendation] = {
+    # Последняя рекомендация по каждому (deal_id, rule_code) — любого статуса:
+    # именно она решает, обновлять существующую, ждать окончания cooldown или
+    # создавать новую.
+    last_by_key: dict[tuple[int, str], Recommendation] = {
         (rec.deal_id, rec.rule_code): rec
         for rec in (
             session.query(Recommendation)
-            .filter(Recommendation.deal_id.in_(deal_ids), Recommendation.status == "pending")
+            .filter(Recommendation.deal_id.in_(deal_ids))
+            .order_by(Recommendation.id)
             .all()
         )
     }
@@ -210,25 +255,35 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
         for finding in findings:
             key = (deal.id, finding.rule_code)
             seen_keys.add(key)
-            existing = pending_by_key.get(key)
-            if existing is not None:
+            existing = last_by_key.get(key)
+
+            if existing is not None and existing.status in _OPEN_STATUSES:
                 existing.reason_text = finding.reason_text
                 existing.detected_at = now
-            else:
-                session.add(
-                    Recommendation(
-                        deal_id=deal.id,
-                        rule_code=finding.rule_code,
-                        recommended_action=action_for_rule(finding.rule_code),
-                        reason_text=finding.reason_text,
-                        status="pending",
-                        detected_at=now,
-                    )
-                )
+                snoozed_over = existing.snoozed_until is None or existing.snoozed_until <= now
+                if existing.status == "snoozed" and snoozed_over:
+                    existing.status = "pending"  # срок «Відкласти» вышел — назад в работу
+                    existing.snoozed_until = None
+                continue
 
-    for key, rec in pending_by_key.items():
-        if key not in seen_keys:
+            if existing is not None and _in_cooldown(existing, now):
+                continue
+
+            session.add(
+                Recommendation(
+                    deal_id=deal.id,
+                    rule_code=finding.rule_code,
+                    recommended_action=action_for_rule(finding.rule_code),
+                    reason_text=finding.reason_text,
+                    status="pending",
+                    detected_at=now,
+                )
+            )
+
+    for key, rec in last_by_key.items():
+        if key not in seen_keys and rec.status in _OPEN_STATUSES:
             rec.status = "expired"
             rec.resolved_at = now
+            rec.snoozed_until = None
 
     session.commit()

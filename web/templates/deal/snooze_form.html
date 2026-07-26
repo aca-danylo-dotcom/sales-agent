@@ -1,0 +1,23 @@
+<div class="detail-footer action-form" id="detail-footer">
+    <form hx-post="/recommendations/{{ rec.id }}/snooze"
+          hx-target="#detail-panel"
+          hx-swap="outerHTML">
+        <div class="field-label">На скільки відкласти?</div>
+        <div class="preset-row">
+            {% for code, preset in presets.items() %}
+            <label class="preset">
+                <input type="radio" name="preset" value="{{ code }}" {% if code == default_preset %}checked{% endif %}>
+                <span>{{ preset[0] }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        <p class="form-hint">Після цього часу рекомендація сама повернеться в робочий список.</p>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Відкласти</button>
+            <button type="button" class="btn btn-ghost"
+                    hx-get="/recommendations/{{ rec.id }}/footer"
+                    hx-target="#detail-footer"
+                    hx-swap="outerHTML">Скасувати</button>
+        </div>
+    </form>
+</div>

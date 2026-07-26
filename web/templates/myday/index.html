@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Мій день — Sales Agent{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Мій день{% if current %} · {{ current.full_name }}{% endif %}</h1>
+        <p class="subtitle">Список на сьогодні: тільки угоди, за які відповідає цей менеджер</p>
+    </div>
+    <div class="header-actions">
+        <span class="header-date">{{ today_label }}</span>
+        <a class="btn btn-ghost btn-sm" href="/my-day{% if current %}?user_id={{ current.id }}{% endif %}">↻ Оновити</a>
+    </div>
+</div>
+
+{% if managers %}
+<div class="owner-switch">
+    <span class="owner-switch-label">Чий день:</span>
+    {% for manager in managers %}
+    <a class="owner-chip {% if current and manager.id == current.id %}active{% endif %}"
+       href="/my-day?user_id={{ manager.id }}">{{ manager.full_name }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="stats">
+    <div class="stat-card stat-red">
+        <div class="stat-top"><span class="stat-icon">▲</span> Залишилось на сьогодні</div>
+        <div class="stat-value">{{ counters.open }}</div>
+        <div class="stat-sub">рекомендацій в роботі</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-top"><span class="stat-icon">✓</span> Зроблено</div>
+        <div class="stat-value">{{ counters.done }}</div>
+        <div class="stat-sub">створено завдань</div>
+    </div>
+    <div class="stat-card stat-yellow">
+        <div class="stat-top"><span class="stat-icon">✕</span> Знято</div>
+        <div class="stat-value">{{ counters.dismissed }}</div>
+        <div class="stat-sub">неактуальні</div>
+    </div>
+    <div class="stat-card stat-purple">
+        <div class="stat-top"><span class="stat-icon">▦</span> Всього в списку дня</div>
+        <div class="stat-value">{{ counters.total }}</div>
+        <div class="stat-sub">пунктів на {{ today_label }}</div>
+    </div>
+</div>
+
+<div class="workspace">
+    <section class="panel actions-panel">
+        <div class="panel-header">
+            <h2>Список на день</h2>
+        </div>
+        {% if not managers %}
+        <div class="page-empty-state">
+            <div class="empty-icon">☺</div>
+            <p>Ще немає жодного менеджера.<br>Додайте користувачів на екрані «Підключення».</p>
+        </div>
+        {% elif items %}
+        <ul class="action-list" id="action-list">
+            {% for item in items %}
+            <li class="action-item {% if not item.actionable %}item-resolved{% endif %}" id="rec-row-{{ item.rec_id }}"
+                {% if item.actionable %}
+                hx-get="/recommendations/{{ item.rec_id }}/card"
+                hx-target="#detail-panel"
+                hx-swap="outerHTML"
+                {% endif %}>
+                <span class="priority priority-{{ item.tier }}">
+                    {% if item.actionable %}
+                        {% if item.tier == 'high' %}Високий{% elif item.tier == 'mid' %}Середній{% else %}Низький{% endif %}
+                    {% else %}{{ item.status_label }}{% endif %}
+                </span>
+                <div class="action-main">
+                    <div class="action-title">{{ item.title }}</div>
+                    <div class="action-desc">{{ item.description }}</div>
+                </div>
+                <div class="action-meta">
+                    <div class="action-days {% if item.idle_high %}days-high{% endif %}">{{ item.idle_label }}</div>
+                    <div class="action-amount">{{ item.amount_label }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="page-empty-state">
+            <div class="empty-icon">✓</div>
+            <p>На сьогодні немає угод, що потребують уваги.<br>Список формується щоранку автоматично.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="panel detail-panel detail-empty" id="detail-panel">
+        <div class="empty-icon">👈</div>
+        <p>Оберіть пункт зі списку зліва, щоб побачити картку рекомендації.</p>
+    </section>
+</div>
+{% endblock %}

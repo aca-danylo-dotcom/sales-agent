@@ -13,8 +13,11 @@ import logging
 
 import config
 from services.prompts import (
+    CLASSIFY_INSTRUCTIONS,
     DRAFT_INSTRUCTIONS,
     EXPLAIN_INSTRUCTIONS,
+    REJECTION_CATEGORIES,
+    build_classify_prompt,
     build_draft_prompt,
     build_explain_prompt,
 )
@@ -82,3 +85,24 @@ def explain_recommendation(facts: dict) -> str | None:
 def draft_message(facts: dict) -> str | None:
     """Черновик сообщения клиенту по фактам, собранным backend'ом."""
     return _safe_request(DRAFT_INSTRUCTIONS, build_draft_prompt(facts), "draft")
+
+
+def classify_rejection_reason(free_text: str) -> str | None:
+    """Свободный текст причины отказа -> код категории из prompts.REJECTION_CATEGORIES.
+
+    Ответ модели валидирует backend: неизвестный код превращается в 'other'.
+    Пустой текст или недоступный LLM -> None, решение о категории принимает вызывающий.
+    """
+    text = (free_text or "").strip()
+    if not text:
+        return None
+
+    raw = _safe_request(CLASSIFY_INSTRUCTIONS, build_classify_prompt(text), "classify")
+    if not raw:
+        return None
+
+    code = raw.strip().strip(".").split()[0].lower()
+    if code not in REJECTION_CATEGORIES:
+        log.info("LLM вернул неизвестную категорию отказа: %r", raw)
+        return "other"
+    return code
