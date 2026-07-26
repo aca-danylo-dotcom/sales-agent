@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from services.scheduler import shutdown_scheduler, start_scheduler
-from web.routers import connect, deal, my_day, worklist
+from web.routers import connect, deal, my_day, settings, worklist
 
 
 @asynccontextmanager
@@ -27,6 +27,7 @@ def create_app() -> FastAPI:
     app.include_router(my_day.router)
     app.include_router(connect.router)
     app.include_router(deal.router)
+    app.include_router(settings.router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

@@ -33,6 +33,12 @@ class Company(Base):
     weight_overdue_task: Mapped[float] = mapped_column(Numeric(10, 4), default=15)
     weight_multi_rule: Mapped[float] = mapped_column(Numeric(10, 4), default=12)
 
+    # Режим работы (экран "Настройки", Фаза 8).
+    # Час по локальному времени компании, начиная с которого формируется список дня.
+    digest_hour: Mapped[int] = mapped_column(Integer, default=8)
+    # Сколько дней после решения по рекомендации то же правило не поднимает её заново.
+    resolved_cooldown_days: Mapped[int] = mapped_column(Integer, default=7)
+
 
 class User(Base):
     __tablename__ = "users"

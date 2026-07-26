@@ -18,6 +18,7 @@ from services import daily_digest
 logger = logging.getLogger(__name__)
 
 # С какого часа локального времени компании список дня считается сформированным.
+# Дефолт: компания правит своё значение на экране «Налаштування» (companies.digest_hour).
 DIGEST_HOUR = 8
 
 _scheduler: BackgroundScheduler | None = None
@@ -35,7 +36,8 @@ def daily_digest_job() -> None:
     try:
         for company in session.query(Company).order_by(Company.id).all():
             now = daily_digest.company_now(company)
-            if now.hour < DIGEST_HOUR:
+            digest_hour = company.digest_hour if company.digest_hour is not None else DIGEST_HOUR
+            if now.hour < digest_hour:
                 continue
             created = daily_digest.build_digest(session, company.id, now=now)
             daily_digest.sync_statuses(session, company.id, now=now)

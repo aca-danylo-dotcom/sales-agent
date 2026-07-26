@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Налаштування — Sales Agent{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Налаштування</h1>
+        <p class="subtitle">Компанія: <strong>{{ company.name }}</strong>. Після збереження список дня перераховується автоматично.</p>
+    </div>
+</div>
+
+{% if saved %}
+<div class="banner banner-ok">Налаштування збережено, рекомендації перераховано.</div>
+{% endif %}
+{% if errors %}
+<div class="banner banner-error">
+    <strong>Нічого не збережено:</strong>
+    <ul>
+        {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<section class="card">
+    <h2>Правила детекції</h2>
+    <p class="hint">Вимкнене правило перестає піднімати угоди: його відкриті рекомендації закриються на найближчому перерахунку. Якщо етапи не відмічені — правило працює на всіх.</p>
+    <form action="/settings/rules" method="post">
+        {% for rule in rules %}
+        <div class="rule-block">
+            <label class="rule-title">
+                <input type="checkbox" name="enabled__{{ rule.row.code }}" {% if rule.row.enabled %}checked{% endif %}>
+                <span>{{ rule.row.name }}</span>
+                <code>{{ rule.row.code }}</code>
+                {% if not rule.known %}<span class="tag tag-warn">немає обробника</span>{% endif %}
+            </label>
+
+            {% if rule.params %}
+            <div class="rule-params">
+                {% for param in rule.params %}
+                <label class="param">
+                    <span>{{ param.spec.label }}</span>
+                    {% if param.spec.kind == "stage" %}
+                    <select name="param__{{ rule.row.code }}__{{ param.spec.key }}">
+                        {% for stage in stages %}
+                        <option value="{{ stage.name }}" {% if stage.name == param.value %}selected{% endif %}>{{ stage.name }}</option>
+                        {% endfor %}
+                    </select>
+                    {% else %}
+                    <input type="number" step="any" min="{{ param.spec.minimum }}" max="{{ param.spec.maximum }}"
+                           name="param__{{ rule.row.code }}__{{ param.spec.key }}" value="{{ param.value }}">
+                    <span class="unit">{{ param.spec.unit }}</span>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="rule-stages">
+                <span class="hint">Тільки на етапах:</span>
+                {% for stage in stages %}
+                <label class="stage-check">
+                    <input type="checkbox" name="stages__{{ rule.row.code }}" value="{{ stage.id }}"
+                           {% if stage.id in rule.stage_ids %}checked{% endif %}>
+                    {{ stage.name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <p class="hint">Правил ще немає.</p>
+        {% endfor %}
+        <button type="submit">Зберегти правила</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Ваги пріоритету</h2>
+    <p class="hint">Пріоритет — сума складових. Більша вага піднімає угоди з відповідною ознакою вище в списку.</p>
+    <form action="/settings/weights" method="post">
+        <div class="weights-grid">
+            {% for field, label, hint in weight_specs %}
+            <label class="param">
+                <span>{{ label }}</span>
+                <input type="number" step="any" min="0" max="1000" name="{{ field }}" value="{{ company[field] }}">
+                <span class="unit">{{ hint }}</span>
+            </label>
+            {% endfor %}
+        </div>
+        <button type="submit">Зберегти ваги</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Етапи воронки</h2>
+    <p class="hint">Назва етапу — ключ зіставлення з колонкою stage_name у CSV. Перейменування етапу переносить і налаштування правил, що на нього посилаються.</p>
+    <form action="/settings/stages" method="post">
+        <table>
+            <thead><tr><th>#</th><th>Назва</th><th>Тип</th></tr></thead>
+            <tbody>
+                {% for stage in stages %}
+                <tr>
+                    <td>{{ stage.order_index }}</td>
+                    <td><input type="text" name="stage_name__{{ stage.id }}" value="{{ stage.name }}" required></td>
+                    <td>
+                        {% if stage.is_closed_won %}виграна{% elif stage.is_closed_lost %}програна{% else %}в роботі{% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3">Етапів ще немає.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Зберегти етапи</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Режим роботи</h2>
+    <form action="/settings/company" method="post">
+        <div class="weights-grid">
+            <label class="param">
+                <span>Назва компанії</span>
+                <input type="text" name="name" value="{{ company.name }}" required>
+            </label>
+            <label class="param">
+                <span>Часовий пояс</span>
+                <select name="timezone">
+                    {% for tz in timezones %}
+                    <option value="{{ tz }}" {% if tz == company.timezone %}selected{% endif %}>{{ tz }}</option>
+                    {% endfor %}
+                    {% if company.timezone not in timezones %}
+                    <option value="{{ company.timezone }}" selected>{{ company.timezone }}</option>
+                    {% endif %}
+                </select>
+            </label>
+            <label class="param">
+                <span>Список дня формується з</span>
+                <input type="number" min="0" max="23" step="1" name="digest_hour" value="{{ company.digest_hour }}">
+                <span class="unit">година за місцевим часом</span>
+            </label>
+            <label class="param">
+                <span>Пауза після рішення</span>
+                <input type="number" min="0" max="365" step="1" name="resolved_cooldown_days" value="{{ company.resolved_cooldown_days }}">
+                <span class="unit">днів те саме правило не піднімає угоду</span>
+            </label>
+        </div>
+        <button type="submit">Зберегти</button>
+    </form>
+</section>
+{% endblock %}

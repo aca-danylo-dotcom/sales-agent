@@ -13,7 +13,7 @@ from typing import Protocol
 from sqlalchemy.orm import Session, selectinload
 
 import config
-from db.models import Deal, DealTask, Recommendation
+from db.models import Company, Deal, DealTask, Recommendation
 from db.models import DetectionRule as DetectionRuleRow
 from services.recommendation import action_for_rule
 
@@ -69,10 +69,11 @@ class DealStale:
 
 class ProposalNoNextTask:
     code = "PROPOSAL_NO_NEXT_TASK"
-    STAGE_NAME = "Предложение отправлено"
+    STAGE_NAME = "Предложение отправлено"  # дефолт для компаний, заведённых до появления настроек
 
     def evaluate(self, ctx: RuleContext) -> RuleFinding | None:
-        if ctx.deal.stage.name != self.STAGE_NAME or ctx.open_tasks:
+        stage_name = ctx.params.get("stage_name") or self.STAGE_NAME
+        if ctx.deal.stage.name != stage_name or ctx.open_tasks:
             return None
         hours = _hours_since(ctx.deal.stage_entered_at, ctx.now)
         threshold = ctx.params.get("hours_threshold", 48)
@@ -138,20 +139,49 @@ class DealFinding:
 
 
 # Сколько дней после решения по рекомендации (підтвердив/відхилив) то же самое
-# правило не поднимает её заново. В Фазе 8 переедет в настройки компании.
+# правило не поднимает её заново. Дефолт для компаний, заведённых до настроек;
+# актуальное значение живёт в companies.resolved_cooldown_days.
 RESOLVED_COOLDOWN_DAYS = 7
 
 # Статусы, при которых рекомендация ещё «в работе» и дубль создавать не нужно.
 _OPEN_STATUSES = ("pending", "snoozed")
 
 
-def _in_cooldown(rec: Recommendation, now: datetime) -> bool:
+def _in_cooldown(rec: Recommendation, now: datetime, cooldown_days: float) -> bool:
     """Решение по этой проблеме принято недавно — не беспокоим менеджера повторно."""
     if rec.status not in ("confirmed", "rejected"):
         return False
+    if cooldown_days <= 0:
+        return False
     if rec.resolved_at is None:
         return True
-    return (now - rec.resolved_at).total_seconds() < RESOLVED_COOLDOWN_DAYS * 86400
+    return (now - rec.resolved_at).total_seconds() < cooldown_days * 86400
+
+
+def _expire_unseen(
+    session: Session,
+    company_id: int,
+    seen_keys: set[tuple[int, str]],
+    now: datetime,
+) -> None:
+    """Открытые рекомендации, которые правила больше не подтверждают, закрываются как expired.
+
+    Сюда же попадают рекомендации выключенного правила: выключили в настройках —
+    рабочий список очищается на ближайшем пересчёте.
+    """
+    rows = (
+        session.query(Recommendation)
+        .join(Deal, Recommendation.deal_id == Deal.id)
+        .filter(Deal.company_id == company_id, Recommendation.status.in_(_OPEN_STATUSES))
+        .all()
+    )
+    for rec in rows:
+        if (rec.deal_id, rec.rule_code) in seen_keys:
+            continue
+        rec.status = "expired"
+        rec.resolved_at = now
+        rec.snoozed_until = None
+    session.commit()
 
 
 def wake_snoozed(session: Session, company_id: int, now: datetime | None = None) -> int:
@@ -213,8 +243,13 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
     """
     now = now or config.now_local()
 
+    company = session.get(Company, company_id)
+    cooldown_days = float(company.resolved_cooldown_days) if company else RESOLVED_COOLDOWN_DAYS
+
     rule_rows = session.query(DetectionRuleRow).filter_by(company_id=company_id, enabled=True).all()
     if not rule_rows:
+        # Все правила выключены — открытые рекомендации больше не подтверждаются детекцией.
+        _expire_unseen(session, company_id, set(), now)
         return
 
     deals = (
@@ -266,7 +301,7 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
                     existing.snoozed_until = None
                 continue
 
-            if existing is not None and _in_cooldown(existing, now):
+            if existing is not None and _in_cooldown(existing, now, cooldown_days):
                 continue
 
             session.add(
@@ -280,10 +315,5 @@ def recompute_company(session: Session, company_id: int, now: datetime | None = 
                 )
             )
 
-    for key, rec in last_by_key.items():
-        if key not in seen_keys and rec.status in _OPEN_STATUSES:
-            rec.status = "expired"
-            rec.resolved_at = now
-            rec.snoozed_until = None
-
-    session.commit()
+    session.flush()
+    _expire_unseen(session, company_id, seen_keys, now)

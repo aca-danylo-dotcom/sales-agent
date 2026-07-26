@@ -20,7 +20,12 @@ DEFAULT_STAGES = [
 DEFAULT_RULES = [
     ("NEW_LEAD_NO_RESPONSE", "Новый лид без ответа", {"hours_threshold": 24}),
     ("DEAL_STALE", "Сделка зависла без активности", {"days_threshold": 5}),
-    ("PROPOSAL_NO_NEXT_TASK", "Предложение отправлено, нет следующей задачи", {"hours_threshold": 48}),
+    (
+        "PROPOSAL_NO_NEXT_TASK",
+        "Предложение отправлено, нет следующей задачи",
+        # stage_name — тоже параметр: этап можно переименовать в настройках, правило не должно ломаться.
+        {"hours_threshold": 48, "stage_name": "Предложение отправлено"},
+    ),
     ("NEXT_CONTACT_OVERDUE", "Просрочена дата следующего контакта", {"hours_grace": 4}),
     ("STUCK_ON_STAGE", "Сделка застряла на этапе дольше нормы", {"days_threshold": 10}),
     ("NO_NEXT_ACTION", "Нет открытой задачи по сделке", {"hours_threshold": 24}),
