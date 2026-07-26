@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import dataclass
-from datetime import datetime
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
@@ -16,56 +15,19 @@ from sqlalchemy.orm import Session, selectinload
 
 import config
 from db.models import Deal, Recommendation
+from services.recommendation import rule_label
+from services.uk_format import format_amount as _format_amount
+from services.uk_format import format_date_uk as _format_date_uk
+from services.uk_format import idle_label as _idle_label
 from web.deps import get_current_company, get_db
 
 router = APIRouter(tags=["worklist"])
 templates = Jinja2Templates(directory="web/templates")
 
-RULE_LABELS = {
-    "NEW_LEAD_NO_RESPONSE": "Новий лід без відповіді",
-    "DEAL_STALE": "Немає активності по угоді",
-    "PROPOSAL_NO_NEXT_TASK": "КП відправлено, немає наступного кроку",
-    "NEXT_CONTACT_OVERDUE": "Прострочена дата наступного контакту",
-    "STUCK_ON_STAGE": "Угода зависла на етапі",
-    "NO_NEXT_ACTION": "Немає відкритої задачі по угоді",
-}
-
-MONTHS_UK = [
-    "січня", "лютого", "березня", "квітня", "травня", "червня",
-    "липня", "серпня", "вересня", "жовтня", "листопада", "грудня",
-]
-
-
-def _plural_uk(number: int, one: str, few: str, many: str) -> str:
-    if number % 100 in (11, 12, 13, 14):
-        return many
-    if number % 10 == 1:
-        return one
-    if number % 10 in (2, 3, 4):
-        return few
-    return many
-
-
-def _idle_label(idle_days: float) -> str:
-    if idle_days < 1:
-        hours = int(idle_days * 24)
-        return f"{hours} {_plural_uk(hours, 'година', 'години', 'годин')}"
-    days = int(idle_days)
-    return f"{days} {_plural_uk(days, 'день', 'дні', 'днів')}"
-
-
-def _format_date_uk(moment: datetime) -> str:
-    return f"{moment.day} {MONTHS_UK[moment.month - 1]} {moment.year}"
-
-
-def _format_amount(amount: float | None, currency: str | None) -> str:
-    if amount is None:
-        return "—"
-    return f"{amount:,.0f}".replace(",", " ") + f" {currency or ''}".rstrip()
-
 
 @dataclass
 class WorklistItem:
+    rec_id: int
     rank: int
     tier: str
     title: str
@@ -131,10 +93,11 @@ def worklist_index(request: Request, session: Session = Depends(get_db)):
         client = (deal.contact.company_name or deal.contact.name) if deal.contact else None
         items.append(
             WorklistItem(
+                rec_id=rec.id,
                 rank=index,
                 tier=_tier_for_rank(index, total),
                 title=client or deal.title,
-                description=f"{RULE_LABELS.get(rec.rule_code, rec.rule_code)} · {deal.stage.name}",
+                description=f"{rule_label(rec.rule_code)} · {deal.stage.name}",
                 idle_label=_idle_label(idle_days),
                 idle_high=idle_days >= 5,
                 amount_value=amount or 0.0,

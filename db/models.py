@@ -169,6 +169,11 @@ class MessageDraft(Base):
     model_used: Mapped[str] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     edited_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Объяснение проблемы от LLM кэшируется рядом с черновиком — обе части
+    # карточки генерируются в одном заходе и живут одним сроком годности.
+    explanation_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Отпечаток входных фактов (rule_code + reason_text): не совпал — кэш устарел.
+    source_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
 
 class ActionLog(Base):

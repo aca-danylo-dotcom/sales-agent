@@ -59,7 +59,10 @@
         {% if items %}
         <ul class="action-list" id="action-list">
             {% for item in items %}
-            <li class="action-item" data-rank="{{ item.rank }}" data-priority="{{ item.tier }}" data-amount="{{ item.amount_value }}">
+            <li class="action-item" data-rank="{{ item.rank }}" data-priority="{{ item.tier }}" data-amount="{{ item.amount_value }}"
+                hx-get="/recommendations/{{ item.rec_id }}/card"
+                hx-target="#detail-panel"
+                hx-swap="outerHTML">
                 <span class="priority priority-{{ item.tier }}">
                     {% if item.tier == 'high' %}Високий{% elif item.tier == 'mid' %}Середній{% else %}Низький{% endif %}
                 </span>
@@ -82,9 +85,9 @@
         {% endif %}
     </section>
 
-    <section class="panel detail-panel detail-empty">
-        <div class="empty-icon">▤</div>
-        <p>Картка рекомендації з поясненням і чернеткою повідомлення з'явиться тут пізніше.</p>
+    <section class="panel detail-panel detail-empty" id="detail-panel">
+        <div class="empty-icon">👈</div>
+        <p>Оберіть угоду зі списку зліва, щоб побачити картку рекомендації.</p>
     </section>
 </div>
 {% endblock %}

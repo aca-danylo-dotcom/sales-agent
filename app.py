@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from web.routers import connect, worklist
+from web.routers import connect, deal, worklist
 
 
 def create_app() -> FastAPI:
@@ -13,6 +13,7 @@ def create_app() -> FastAPI:
     app.mount("/static", StaticFiles(directory="web/static"), name="static")
     app.include_router(worklist.router)
     app.include_router(connect.router)
+    app.include_router(deal.router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

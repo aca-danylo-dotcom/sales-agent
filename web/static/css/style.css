@@ -8,6 +8,7 @@
   --text-muted: #8a8ca0;
   --accent: #6d5bf6;
   --accent-hover: #5a48e6;
+  --accent-bg: #efecfe;
   --red: #ef4444;
   --red-bg: #fdecec;
   --orange: #f59e0b;
@@ -298,6 +299,16 @@ body {
   gap: 12px;
   padding: 12px;
   border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.action-item:hover { background: #f6f7fb; }
+
+.action-item.selected {
+  background: var(--accent-bg, #f1eefe);
+  border-color: var(--accent);
 }
 
 .priority {
@@ -450,6 +461,25 @@ body {
   font-size: 13px;
   color: var(--text);
   margin-bottom: 12px;
+  white-space: pre-line;
+}
+
+/* LLM-блок карточки: ожидание генерации и недоступность модели */
+.llm-loading, .llm-unavailable {
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+.llm-unavailable code {
+  background: #eef0f5;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+}
+
+.btn[disabled] {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
 .draft-footer {

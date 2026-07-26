@@ -61,4 +61,39 @@
       showToast(byAmount ? 'Відсортовано за сумою' : 'Відсортовано за пріоритетом');
     });
   }
+
+  // Картка рекомендації: підсвічування вибраного рядка, копіювання, закриття.
+  document.addEventListener('click', (event) => {
+    const row = event.target.closest('.action-item');
+    if (row) {
+      document.querySelectorAll('.action-item.selected').forEach((item) => {
+        item.classList.remove('selected');
+      });
+      row.classList.add('selected');
+      return;
+    }
+
+    const copyBtn = event.target.closest('[data-copy-target]');
+    if (copyBtn) {
+      const source = document.getElementById(copyBtn.dataset.copyTarget);
+      if (!source) return;
+      navigator.clipboard.writeText(source.innerText.trim()).then(
+        () => showToast('Чернетку скопійовано'),
+        () => showToast('Не вдалося скопіювати')
+      );
+      return;
+    }
+
+    if (event.target.closest('#detail-close')) {
+      const panel = document.getElementById('detail-panel');
+      if (!panel) return;
+      panel.className = 'panel detail-panel detail-empty';
+      panel.innerHTML =
+        '<div class="empty-icon">👈</div>' +
+        '<p>Оберіть угоду зі списку зліва, щоб побачити картку рекомендації.</p>';
+      document.querySelectorAll('.action-item.selected').forEach((item) => {
+        item.classList.remove('selected');
+      });
+    }
+  });
 })();

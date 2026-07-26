@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from db.base import Base
 from db.models import Company, User
@@ -17,7 +18,14 @@ from db.seed import seed_company
 
 @pytest.fixture()
 def session() -> Session:
-    engine = create_engine("sqlite:///:memory:", future=True)
+    # StaticPool + check_same_thread=False: TestClient выполняет синхронные роуты
+    # в отдельном потоке, а дефолтный пул дал бы там пустую in-memory базу.
+    engine = create_engine(
+        "sqlite:///:memory:",
+        future=True,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     Base.metadata.create_all(bind=engine)
     local_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, future=True)
     db = local_session()

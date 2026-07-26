@@ -1,0 +1,67 @@
+<section class="panel detail-panel" id="detail-panel">
+    <div class="detail-header">
+        <span class="priority priority-{{ tier }}">
+            {% if tier == 'high' %}Високий пріоритет{% elif tier == 'mid' %}Середній пріоритет{% else %}Низький пріоритет{% endif %}
+        </span>
+        <div class="detail-header-actions">
+            <button type="button" class="icon-btn"
+                    hx-get="/recommendations/{{ rec.id }}/card"
+                    hx-target="#detail-panel"
+                    hx-swap="outerHTML"
+                    title="Оновити картку">↻</button>
+            <button type="button" class="icon-btn" id="detail-close" title="Закрити">✕</button>
+        </div>
+    </div>
+
+    <h3 class="detail-title">{{ facts.client }}</h3>
+
+    <div class="detail-grid">
+        <div class="detail-field">
+            <div class="field-label">Угода на етапі</div>
+            <div class="field-value">{{ facts.stage or '—' }}</div>
+        </div>
+        <div class="detail-field">
+            <div class="field-label">Сума угоди</div>
+            <div class="field-value strong">{{ facts.amount or '—' }}</div>
+        </div>
+        <div class="detail-field">
+            <div class="field-label">Відповідальний</div>
+            <div class="field-value with-avatar">👤 <span>{{ facts.owner or 'не призначений' }}</span></div>
+        </div>
+        <div class="detail-field">
+            <div class="field-label">Без активності</div>
+            <div class="field-value {% if overdue %}warn{% endif %}">{{ facts.idle or '—' }}</div>
+        </div>
+    </div>
+
+    <div class="info-box warn-box">
+        <div class="info-box-title">⚠️ Що знайшли правила</div>
+        <p>{{ facts.rule_label }}: {{ facts.problem }}</p>
+    </div>
+
+    <div class="info-box success-box">
+        <div class="info-box-title">✅ Рекомендована дія</div>
+        <p>{{ facts.action_title }}. {{ facts.action_text }}</p>
+    </div>
+
+    <div id="llm-block"
+         hx-get="/recommendations/{{ rec.id }}/llm"
+         hx-trigger="load"
+         hx-target="#llm-block"
+         hx-swap="outerHTML">
+        <div class="draft-box">
+            <div class="draft-title">Пояснення і чернетка</div>
+            <div class="draft-text llm-loading">Готуємо пояснення і чернетку повідомлення…</div>
+        </div>
+    </div>
+
+    <div class="detail-footer">
+        <button type="button" class="btn btn-primary btn-block" disabled title="Буде у наступній фазі">
+            ✓ Створити завдання в CRM
+        </button>
+        <div>
+            <button type="button" class="btn btn-outline" disabled title="Буде у наступній фазі">🕐 Відкласти</button>
+            <button type="button" class="btn btn-outline" disabled title="Буде у наступній фазі">✕ Неактуально</button>
+        </div>
+    </div>
+</section>

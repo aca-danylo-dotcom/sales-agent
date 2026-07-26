@@ -1,0 +1,44 @@
+<div id="llm-block">
+    {% if explanation %}
+    <div class="info-box">
+        <div class="info-box-title">💡 Чому це важливо</div>
+        <p>{{ explanation }}</p>
+    </div>
+    {% endif %}
+
+    <div class="draft-box">
+        <div class="draft-title">Чернетка повідомлення</div>
+        {% if draft_text %}
+        <div class="draft-text" id="draft-text">{{ draft_text }}</div>
+        <div class="draft-footer">
+            <div class="draft-actions">
+                <button type="button" class="btn btn-ghost btn-sm" data-copy-target="draft-text">⧉ Копіювати</button>
+                <button type="button" class="btn btn-ghost btn-sm"
+                        hx-get="/recommendations/{{ rec.id }}/llm?refresh=1"
+                        hx-target="#llm-block"
+                        hx-swap="outerHTML"
+                        hx-indicator="#llm-block">↻ Оновити</button>
+            </div>
+            <span class="char-count">{{ draft_text | length }} символів</span>
+        </div>
+        {% else %}
+        <div class="draft-text llm-unavailable">
+            {% if llm_configured %}
+            Не вдалося отримати відповідь від моделі. Картка працює, чернетку можна згенерувати пізніше.
+            {% else %}
+            Пояснення і чернетка недоступні: не заданий <code>AI_API_KEY</code> у <code>.env</code>.
+            {% endif %}
+        </div>
+        {% if llm_configured %}
+        <div class="draft-footer">
+            <div class="draft-actions">
+                <button type="button" class="btn btn-ghost btn-sm"
+                        hx-get="/recommendations/{{ rec.id }}/llm?refresh=1"
+                        hx-target="#llm-block"
+                        hx-swap="outerHTML">↻ Спробувати ще раз</button>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
